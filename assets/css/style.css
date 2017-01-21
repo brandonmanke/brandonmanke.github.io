@@ -13,7 +13,8 @@ body {
 
 .container {
 	height: 100%;
-	width: 65%;
+	width: 60%;
+    margin: 3% auto auto 2%;
 }
 
 .container * {
@@ -52,6 +53,42 @@ body {
 	}
 }
 
+.projects {
+	list-style-type: none;
+	padding-left: 10px;
+}
+
+.projects li {
+	color: #444;
+}
+
+li > a {
+	text-decoration: none;
+}
+
+li > a:link {
+	color: #444;
+}
+
+li > a:visited {
+	color: #444;
+}
+
+li > a:hover {
+	color: rgb(192, 158, 149);
+	cursor: pointer;
+}
+
+li > a:before {
+	content: '';
+    background: #d6d6d6;;
+    display: inline-block;
+    vertical-align: middle;
+    height: 1px;
+    width: 10px;
+    margin-right: 3px;
+}
+
 .wrapper {
 	position: absolute;
 	top: 0;
@@ -79,6 +116,9 @@ body {
     height: 100%;
     border-top: 75vh solid #fff;
     border-right: 75vw solid transparent;
+
+    /* rgba(252, 215, 138, .2); */
+
     /*-webkit-border-image: url(../images/sergey-zolkin.jpg); /* Safari 3.1-5 */
     /*-o-border-image: url(../images/sergey-zolkin.jpg); /* Opera 11-12.1 */
     /*border-image: url(../images/sergey-zolkin.jpg);*/
@@ -89,4 +129,9 @@ body {
   	-o-filter: blur(2px);
   	-ms-filter: blur(2px);*/
 }
-	
+
+#border {
+	z-index: -1;
+    border-top: 75.5vh solid #000;
+    border-right: 75.5vw solid transparent;
+}
