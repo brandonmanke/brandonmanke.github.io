@@ -2,14 +2,11 @@
 <html lang="en">
 <head>
 	<title>Brandon Manke</title>
+	<meta charset="utf-8">
 	<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400" rel="stylesheet">
 	<link rel="stylesheet" type="text/css" href="assets/css/normalize.css">
 	<link rel="stylesheet" type="text/css" href="assets/css/style.css">
-	<meta charset="utf-8">
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-	<meta name="description" content="Currently pursuing a BS in Computer Science, also looking for new opportunities.">
 	<link rel="author" href="https://github.com/brandonmanke"/>
-	<link rel="canonical" href="{{pageUrl}}"/>
 	<!-- favicon -->
 	<link rel="shortcut icon" href="assets/favicon/favicon.ico">
 	<link rel="icon" sizes="16x16 32x32 64x64" href="assets/favicon/favicon.ico">
@@ -31,8 +28,12 @@
 	<meta name="msapplication-TileColor" content="#FFFFFF">
 	<meta name="msapplication-TileImage" content="assets/favicon/favicon-144.png">
 	<meta name="msapplication-config" content="assets/favicon/browserconfig.xml">
+	<script src="assets/js/modernizr.min.js"></script>
 </head>
 <body>
+	<!--[if lte IE9]>
+	<p class="outdated">You're using an older web browser, to improve your browsing experience please <a href="http://outdatedbrowser.com/">upgrade.</a></p>
+	<![endif]-->
 	<div class="container">
 		<h1>Brandon Manke</h1>
 		<h3>Pursuing a BS in Computer Science at <a href="https://illinoisstate.edu/">Illinois State University.</a></h3>
@@ -52,10 +53,10 @@
 	</div>
 	<div class="contact">
 		<ul class="contact-list">
-			<li><a href="mailto:me@brandonmanke.com"><img src="assets/images/mail.svg" alt="mail"></a></li>
-			<li><a href="https://github.com/brandonmanke"><img src="assets/images/github.svg" alt="github"></a></li>
-			<li><a href="https://www.linkedin.com/in/brandon-manke"><img src="assets/images/linkedin.svg" alt="linkedin"></a></li>
-			<li><a href="http://stackoverflow.com/users/4318497/brandon-manke"><img src="assets/images/stackoverflow.svg" alt="stackoverflow"></a></li>
+			<li><a href="mailto:me@brandonmanke.com"><img id="mail" src="assets/images/mail.svg" alt="mail" width="60" height="60"></a></li>
+			<li><a href="https://github.com/brandonmanke"><img id="github" src="assets/images/github.svg" alt="github" width="60" height="60"></a></li>
+			<li><a href="https://www.linkedin.com/in/brandon-manke"><img id="linkedin" src="assets/images/linkedin.svg" alt="linkedin" width="60" height="60"></a></li>
+			<li><a href="http://stackoverflow.com/users/4318497/brandon-manke"><img id="stackoverflow" src="assets/images/stackoverflow.svg" alt="stackoverflow" width="60" height="60"></a></li>
 			<li><a href=""><img src="assets/images/location.png" alt="location" width="60" height="60"></a></li>
 		</ul>
 	</div>
