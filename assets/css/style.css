@@ -3,10 +3,13 @@
  * https://www.iconfinder.com/iconsets/miu-flat-social
  */
 
+body, html {
+	height: 95%;
+}
+
 body {
 	font-family: 'Open Sans', sans-serif;
 	font-weight: 300;
-	/*background-image: url(../images/hide-obara.jpg);*/
 	background-image: url(../images/anthony-delanoix.jpg);
 	/*background-image: url(../images/sergey-zolkin.jpg);*/
 	background-attachment: fixed;
@@ -14,6 +17,7 @@ body {
 	background-position: right;
 	background-size: cover;
 	color: #979797;
+	/*overflow-y: hidden;*/
 }
 
 .outdated {
@@ -44,7 +48,7 @@ body {
 	margin: 1% auto 1% auto;
 }
 
-.container h3 {
+.container p {
 	font-size: 1.1em;
 	font-weight: 300;
 	margin: 1% auto 1% auto;
@@ -67,12 +71,12 @@ body {
 	color: rgb(210, 146, 64);
 }
 
-#h3o {
+#email {
 	margin-left: 0;
 	width: 90%;
 }
 
-.container p {
+.container h3 {
 	color: #fff;
 	font-size: 1em;
 	font-weight: 400;
@@ -151,14 +155,15 @@ body {
 /* ============== CONTACT ============== */
 
 .contact {
-	margin-top: 10%;
+	min-height: 100%;
+	margin: 0 2%;
 	float: right;
-	position: relative;
 }
 
 .contact ul {
+	margin-top: 25vh;
 	list-style: none;
-	padding-left: 5px;
+	padding-left: 0;
 }
 
 .contact-list li {

@@ -3,12 +3,6 @@
  */
 window.onload = function() {
 
-	function svgToPNG(element) {
-		element.src = 'assets/images/' + element.id + '.png';
-		//element.width = '60';
-		//element.height = '60';
-	}
-
 	if (Modernizr.svg) {
 		console.log('svg');
 	} else {
@@ -17,9 +11,9 @@ window.onload = function() {
 		var linkedin = document.getElementById('linkedin');
 		var stackoverflow = document.getElementById('stackoverflow');
 
-		svgToPNG(mail);
-		svgToPNG(github);
-		svgToPNG(linkedin);
-		svgToPNG(stackoverflow);
+		mail.src = 'assets/images/' + mail + '.png';
+		github.src = 'assets/images/' + github + '.png';
+		linkedin.src = 'assets/images/' + linkedin + '.png';
+		stackoverflow.src = 'assets/images/' + stackoverflow + '.png';
 	}
 }
