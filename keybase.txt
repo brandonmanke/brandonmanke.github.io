@@ -1,0 +1,54 @@
+==================================================================
+https://keybase.io/bnm
+--------------------------------------------------------------------
+
+I hereby claim:
+
+  * I am an admin of http://brandonmanke.com
+  * I am bnm (https://keybase.io/bnm) on keybase.
+  * I have a public key ASCLVvjpX56jeZd7sdtOHc5Rv2QGESeqZwGwZ_Zx5Omb7Ao
+
+To do so, I am signing this object:
+
+{
+    "body": {
+        "key": {
+            "eldest_kid": "01010dbebfb5ba5cb16c860358c11f6265f6f9069b57623423e021918d7b96b4fdad0a",
+            "host": "keybase.io",
+            "kid": "01208b56f8e95f9ea379977bb1db4e1dce51bf64061127aa6701b067f671e4e99bec0a",
+            "uid": "2818360899bf8caa204c7081ec5e6619",
+            "username": "bnm"
+        },
+        "service": {
+            "hostname": "brandonmanke.com",
+            "protocol": "http:"
+        },
+        "type": "web_service_binding",
+        "version": 1
+    },
+    "client": {
+        "name": "keybase.io go client",
+        "version": "1.0.18"
+    },
+    "ctime": 1485393465,
+    "expire_in": 504576000,
+    "merkle_root": {
+        "ctime": 1485393454,
+        "hash": "cc9611fc5b0cbf45d9c948088357cb33b625c15278ca34a2922b4ad9ac539eee2c772a83c257d42a4ab7364d0b3297a7c02e45f614da24e582dd7714bb054449",
+        "seqno": 817666
+    },
+    "prev": "03dd0cd799459724c53cc76b25fca1fcc0d4f3c77889f18b8e3b9985d5a67f43",
+    "seqno": 7,
+    "tag": "signature"
+}
+
+which yields the signature:
+
+hKRib2R5hqhkZXRhY2hlZMOpaGFzaF90eXBlCqNrZXnEIwEgi1b46V+eo3mXe7HbTh3OUb9kBhEnqmcBsGf2ceTpm+wKp3BheWxvYWTFAvJ7ImJvZHkiOnsia2V5Ijp7ImVsZGVzdF9raWQiOiIwMTAxMGRiZWJmYjViYTVjYjE2Yzg2MDM1OGMxMWY2MjY1ZjZmOTA2OWI1NzYyMzQyM2UwMjE5MThkN2I5NmI0ZmRhZDBhIiwiaG9zdCI6ImtleWJhc2UuaW8iLCJraWQiOiIwMTIwOGI1NmY4ZTk1ZjllYTM3OTk3N2JiMWRiNGUxZGNlNTFiZjY0MDYxMTI3YWE2NzAxYjA2N2Y2NzFlNGU5OWJlYzBhIiwidWlkIjoiMjgxODM2MDg5OWJmOGNhYTIwNGM3MDgxZWM1ZTY2MTkiLCJ1c2VybmFtZSI6ImJubSJ9LCJzZXJ2aWNlIjp7Imhvc3RuYW1lIjoiYnJhbmRvbm1hbmtlLmNvbSIsInByb3RvY29sIjoiaHR0cDoifSwidHlwZSI6IndlYl9zZXJ2aWNlX2JpbmRpbmciLCJ2ZXJzaW9uIjoxfSwiY2xpZW50Ijp7Im5hbWUiOiJrZXliYXNlLmlvIGdvIGNsaWVudCIsInZlcnNpb24iOiIxLjAuMTgifSwiY3RpbWUiOjE0ODUzOTM0NjUsImV4cGlyZV9pbiI6NTA0NTc2MDAwLCJtZXJrbGVfcm9vdCI6eyJjdGltZSI6MTQ4NTM5MzQ1NCwiaGFzaCI6ImNjOTYxMWZjNWIwY2JmNDVkOWM5NDgwODgzNTdjYjMzYjYyNWMxNTI3OGNhMzRhMjkyMmI0YWQ5YWM1MzllZWUyYzc3MmE4M2MyNTdkNDJhNGFiNzM2NGQwYjMyOTdhN2MwMmU0NWY2MTRkYTI0ZTU4MmRkNzcxNGJiMDU0NDQ5Iiwic2Vxbm8iOjgxNzY2Nn0sInByZXYiOiIwM2RkMGNkNzk5NDU5NzI0YzUzY2M3NmIyNWZjYTFmY2MwZDRmM2M3Nzg4OWYxOGI4ZTNiOTk4NWQ1YTY3ZjQzIiwic2Vxbm8iOjcsInRhZyI6InNpZ25hdHVyZSJ9o3NpZ8RA5Cyw/rg3iDjyulgBM9i7VZ1uNIQ86lmy5GdOCxXZ5Tg/+GmoG+feH5Xo5A+7p0OsR99ArZoKLBaiNmG7bnYXBqhzaWdfdHlwZSCkaGFzaIKkdHlwZQildmFsdWXEIKuK8DMdLYIevh5dzecA6zA99T5SOeSTFVYf0qGVnbX7o3RhZ80CAqd2ZXJzaW9uAQ==
+
+And finally, I am proving ownership of this host by posting or
+appending to this document.
+
+View my publicly-auditable identity here: https://keybase.io/bnm
+
+==================================================================
