@@ -2,6 +2,8 @@
  * modernizr checks mainly
  */
 window.onload = function() {
+	// simple lazy loading
+	document.body.style.backgroundImage = 'url(./assets/images/anthony-delanoix.jpg)';
 
 	if (Modernizr.svg) {
 		console.log('svg');
