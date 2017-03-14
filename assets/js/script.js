@@ -16,7 +16,7 @@ window.onload = function() {
         document.body.style.backgroundImage = 'url(./assets/images/anthony-delanoix.jpg)';
         setTimeout(function() {
             document.getElementById('bg-image').style.display = 'none';
-        }, 500);
+        }, 50);
     });
 
     if (Modernizr.svg) {
