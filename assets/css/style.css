@@ -4,160 +4,160 @@
  */
 
 body, html {
-	height: 95%;
+    height: 95%;
 }
 
 body {
-	font-family: 'Open Sans', sans-serif;
-	font-weight: 300;
-	background-image: url(../images/anthony-delanoix.jpg);
-	background-color: #e7dcda;
-	background-attachment: fixed;
-	background-repeat: no-repeat;
-	background-position: right;
-	background-size: cover;
-	color: #979797;
-	/*overflow-y: hidden;*/
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 300;
+    background-image: url(../images/anthony-delanoix.jpg);
+    background-color: #e7dcda;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-position: right;
+    background-size: cover;
+    color: #979797;
+    /*overflow-y: hidden;*/
 }
 
 .outdated {
-	position: absolute;
-	color: #fff;
-	font-weight: 400;
-	z-index: 999;
+    position: absolute;
+    color: #fff;
+    font-weight: 400;
+    z-index: 999;
 }
 
 #bg-image {
-	height: 100%;
-	width: 100%;
-	position: absolute;
-	background-image: url(../images/anthony-delanoix-pre.jpg);
-	color: #979797;
-	background-color: #e7dcda;
-	background-attachment: fixed;
-	background-repeat: no-repeat;
-	background-position: right;
-	background-size: cover;
-	z-index: -1;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    background-image: url(../images/anthony-delanoix-pre.jpg);
+    color: #979797;
+    background-color: #e7dcda;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-position: right;
+    background-size: cover;
+    z-index: -1;
 }
 
 /* ============== CONTAINER ============== */
 
 .container {
-	height: 100%;
-	width: 55%;
+    height: 100%;
+    width: 55%;
     margin: 3% auto auto 2%;
     float: left;
 }
 
 .container * {
-	z-index: 1;
+    z-index: 1;
     /* display: block; */
     position: relative;
 }
 
 .container h1 {
-	color: #fff;
-	font-weight: 400;
-	margin: 1% auto 1% auto;
+    color: #fff;
+    font-weight: 400;
+    margin: 1% auto 1% auto;
 }
 
 .container p {
-	font-size: 1.1em;
-	font-weight: 300;
-	margin: 1% auto 1% auto;
+    font-size: 1.1em;
+    font-weight: 300;
+    margin: 1% auto 1% auto;
 }
 
 .container a {
-	color: rgb(210, 146, 64);
-	text-decoration: none;
+    color: rgb(210, 146, 64);
+    text-decoration: none;
 }
 
 .container a:hover {
-	color: rgb(182, 126, 57) !important;
+    color: rgb(182, 126, 57) !important;
 }
 
 .container a:link {
-	color: rgb(210, 146, 64);
+    color: rgb(210, 146, 64);
 }
 
 .container a:visited {
-	color: rgb(210, 146, 64);
+    color: rgb(210, 146, 64);
 }
 
 #email {
-	margin-left: 0;
-	width: 90%;
+    margin-left: 0;
+    width: 90%;
 }
 
 .container h3 {
-	color: #fff;
-	font-size: 1em;
-	font-weight: 400;
-	margin-top: 2.5%;
-	margin-bottom: 5px;
+    color: #fff;
+    font-size: 1em;
+    font-weight: 400;
+    margin-top: 2.5%;
+    margin-bottom: 5px;
 }
 
 @media (max-width: 700px) {
-	a {
-		font-size: 2.5vw;
-	}
+    a {
+        font-size: 2.5vw;
+    }
 }
 
 @media (max-width: 500px) {
-	.container h1 {
-		font-size: 7vw;
-	}
+    .container h1 {
+        font-size: 7vw;
+    }
 
-	.container h3 {
-		font-size: 3.5vw;
-	}
+    .container h3 {
+        font-size: 3.5vw;
+    }
 
-	.container p {
-		font-size: 3vw;
-	}
+    .container p {
+        font-size: 3vw;
+    }
 
-	li {
-		font-size: 3vw;
-	}
+    li {
+        font-size: 3vw;
+    }
 }
 
 .projects {
-	margin-top: 5px;
-	list-style-type: none;
-	padding-left: 5px;
+    margin-top: 5px;
+    list-style-type: none;
+    padding-left: 5px;
 }
 
 @media (max-width: 500px) {
-	.projects {
-		padding-left: 3px;
-	}
+    .projects {
+        padding-left: 3px;
+    }
 }
 
 .projects li {
-	color: #979797;/*#444;*/
+    color: #979797;/*#444;*/
 }
 
 .projects li > a {
-	text-decoration: none;
+    text-decoration: none;
 }
 
 .projects li > a:link {
-	color: #979797;
+    color: #979797;
 }
 
 .projects li > a:visited {
-	color: #979797;
+    color: #979797;
 }
 
 .projects li > a:hover {
-	color: rgb(210, 146, 64);
-	cursor: pointer;
-	/* old color: rgb(192, 158, 149); */
+    color: rgb(210, 146, 64);
+    cursor: pointer;
+    /* old color: rgb(192, 158, 149); */
 }
 
 .projects li > a:before {
-	content: '';
+    content: '';
     background: #d6d6d6;;
     display: inline-block;
     vertical-align: middle;
@@ -169,81 +169,81 @@ body {
 /* ============== CONTACT ============== */
 
 .contact {
-	min-height: 100%;
-	margin: 0 2%;
-	float: right;
+    min-height: 100%;
+    margin: 0 2%;
+    float: right;
 }
 
 .contact ul {
-	margin-top: 25vh;
-	list-style: none;
-	padding-left: 0;
+    margin-top: 10vh;
+    list-style: none;
+    padding-left: 0;
 }
 
 .contact-list li {
-	margin: 30px 0px 30px 0px;
+    margin: 30px 0px 30px 0px;
 }
 
 .contact-list li > a > img  {
-	vertical-align: middle;
-	display: block;
-	margin: auto;
+    vertical-align: middle;
+    display: block;
+    margin: auto;
 }
 
 /* ============== WRAPPER ============== */
 
 
 .wrapper {
-	position: absolute;
-	top: 0;
-	left: 0;
-	display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
 }
 
 .wrapper div {
-	position: absolute;
-	top: 0;
-	left: 0;
-	display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
 }
 
 .background {
-  	width: 100%; 
+    width: 100%; 
     height: 100%;
     border-top: 72vh solid #1F2023;
     border-right: 72vw solid transparent;
 }
 
 .border {
-	z-index: -1;
-	border-top: 73vh solid rgba(0, 0, 0, 0.2);
+    z-index: -1;
+    border-top: 73vh solid rgba(0, 0, 0, 0.2);
     border-right: 73vw solid transparent;
 }
 
 @media (max-width: 890px) {
-	.background {
-		border-top: 80vh solid #1F2023;
-    	border-right: 72vw solid transparent;
-	}
+    .background {
+        border-top: 80vh solid #1F2023;
+        border-right: 72vw solid transparent;
+    }
 
-	.border {
-		border-top: 81vh solid rgba(0, 0, 0, 0.2);
-    	border-right: 73vw solid transparent;
-	}
+    .border {
+        border-top: 81vh solid rgba(0, 0, 0, 0.2);
+        border-right: 73vw solid transparent;
+    }
 
-	h3 {
-		font-size: 3vw;
-	}
+    h3 {
+        font-size: 3vw;
+    }
 }
 
 /*@media (max-width: 500px) {
-	.background {
-		border-top: 90vh solid #1F2023;
-    	border-right: 72vw solid transparent;
-	}
+    .background {
+        border-top: 90vh solid #1F2023;
+        border-right: 72vw solid transparent;
+    }
 
-	.border {
-		border-top: 90.5vh solid rgba(0, 0, 0, 0.2);
-    	border-right: 72.5vw solid transparent;
-	}
+    .border {
+        border-top: 90.5vh solid rgba(0, 0, 0, 0.2);
+        border-right: 72.5vw solid transparent;
+    }
 }*/
