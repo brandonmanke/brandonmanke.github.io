@@ -26,10 +26,12 @@ window.onload = function() {
         var github = document.getElementById('github');
         var linkedin = document.getElementById('linkedin');
         var stackoverflow = document.getElementById('stackoverflow');
+        var location = document.getElementById('location');
 
         mail.src = 'assets/images/' + mail + '.png';
         github.src = 'assets/images/' + github + '.png';
         linkedin.src = 'assets/images/' + linkedin + '.png';
         stackoverflow.src = 'assets/images/' + stackoverflow + '.png';
+        location.src = 'assets/images/' + location + '.png';
     }
 }
