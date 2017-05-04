@@ -190,6 +190,20 @@ body {
     margin: auto;
 }
 
+.contact-el:before {
+    display: none;
+}
+
+.contact-el.show:before {
+    content: ' ';
+    background: #d6d6d6;;
+    display: inline-block;
+    vertical-align: middle;
+    height: 1px;
+    width: 10px;
+    margin-right: 3px;
+}
+
 /* ============== WRAPPER ============== */
 
 
