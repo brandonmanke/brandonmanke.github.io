@@ -11,13 +11,13 @@ function preloadImage(url, callback) {
 }
 
 // Event listener for contact elements, toggles 'show' class
-function addHoverListeners(el) {
+function addHoverListeners(el, toggle) {
     el.addEventListener('mouseover', function() {
-        toggleShowClass(el);
+        toggleShowClass(toggle);
     }, false);
 
     el.addEventListener('mouseout', function() {
-        toggleShowClass(el);
+        toggleShowClass(toggle);
     }, false);
 }
 
@@ -68,8 +68,15 @@ window.onload = function() {
     // If transitions are supported then we add the hover listener
     if (Modernizr.csstransitions) {
         var contacts = document.querySelectorAll('.contact-el');
-        contacts.forEach(function(element) {
-            addHoverListeners(element);
+        var imgs = document.querySelectorAll('.contact-el > a > img');
+
+        // this is kind of a hacky way of doing this
+        // currently broken, on hover toggles all mouse over listeners, probably because of forEach?
+        imgs.forEach(function(imgElements) {
+            contacts.forEach(function(tagElements) {
+                addHoverListeners(imgElements, tagElements);
+            });
         });
+        }
     }
 }
