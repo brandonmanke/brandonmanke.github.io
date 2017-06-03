@@ -66,17 +66,17 @@ window.onload = function() {
     }
 
     // If transitions are supported then we add the hover listener
+    /*
     if (Modernizr.csstransitions) {
         var contacts = document.querySelectorAll('.contact-el');
         var imgs = document.querySelectorAll('.contact-el > a > img');
 
         // this is kind of a hacky way of doing this
-        // currently broken, on hover toggles all mouse over listeners, probably because of forEach?
-        imgs.forEach(function(imgElements) {
-            contacts.forEach(function(tagElements) {
-                addHoverListeners(imgElements, tagElements);
-            });
-        });
+        for (var i = 0; i < imgs.length; i++) {
+            for (var j = 0; j < contacts.length; j++) {
+                addHoverListeners(imgs[i], contacts[i]);
+            }
         }
     }
+    */
 }
