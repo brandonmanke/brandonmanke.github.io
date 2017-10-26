@@ -28,7 +28,6 @@ function toggleShowClass(el) {
     } else {
         var classes = el.className.split(' ');
         var existingIndex = classes.indexOf('show');
-
         if (existingIndex >= 0) {
             classes.splice(existingIndex, 1);
         } else {
@@ -46,7 +45,6 @@ window.onload = function() {
     var linkedin = document.getElementById('linkedin');
     var stackoverflow = document.getElementById('stackoverflow');
     var location = document.getElementById('location');
-
     //document.body.style.backgroundImage = 'url(./assets/images/anthony-delanoix.jpg)';
     preloadImage('./assets/images/anthony-delanoix.jpg', function() {
         document.body.style.backgroundImage = 'url(./assets/images/anthony-delanoix.jpg)';
