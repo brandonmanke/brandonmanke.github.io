@@ -1,0 +1,163 @@
+html {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    height: 100%;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 300;
+}
+
+.background {
+    position: absolute;
+    z-index: -1;
+    min-width: 100%;
+    min-height: 100%;
+    left: 0;
+    top: 0;
+    background: url("../images/harli-marten-140106.jpg") center center no-repeat;
+    /*background: url("./samuel-ferrara-318709.jpg") center center no-repeat;*/
+    background-size: cover;
+    opacity: 0;
+    -webkit-transition: opacity 1s ease-in-out;
+    -transition: opacity 1s ease-in-out;
+    -o-transition: opacity 1s ease-in-out;
+    transition: opacity 1s ease-in-out;
+    background-position: fixed;
+}
+
+/* mobile
+@media only screen and (max-device-width: 520px) {
+
+}
+*/
+
+.wrapper {
+    position: relative;
+    min-width: 100%;
+    min-height: 100%;
+    left: 0;
+    top: 0;
+}
+
+.gradient {
+    position: absolute;
+    /*background-position: fixed;*/
+    background-size: cover;
+    min-width: 100%;
+    min-height: 100%;
+    left: 0;
+    top: 0;
+    background-color: #E8BDC2;
+    /* blue #94C4DB to pink #E8BDC2 */
+    /* option 2 ? #d3ab7a to #21677e */
+    /*background: linear-gradient(0deg, #d3ab7a 25%, #21677e 65%) center center;
+    background: -o-linear-gradient(bottom, #d3ab7a 25%, #21677e 65%) center center;
+    background: -moz-linear-gradient(bottom, #d3ab7a 25%, #21677e 65%) center center;
+    background-image: -webkit-linear-gradient(bottom, #d3ab7a 25%, #21677e 65%) center center;*/
+    background-image: linear-gradient(0deg, #94C4DB 25%,  #E8BDC2 65%);
+    background-image: -o-linear-gradient(bottom, #94C4DB 25%, #E8BDC2 65%);
+    background-image: -moz-linear-gradient(bottom, #94C4DB 25%, #E8BDC2 65%);
+    background-image: -webkit-linear-gradient(bottom, #94C4DB 25%, #E8BDC2 65%);
+    /*background: url("./background.png") center center no-repeat;*/
+    background-size: 100%;
+    /*
+    -webkit-transition: opacity 1s ease-in-out;
+    -transition: opacity 1s ease-in-out;
+    -o-transition: opacity 1s ease-in-out;
+    transition: opacity 1s ease-in-out;
+    */
+    opacity: .25;
+}
+
+.left {
+    transform: skewY(-18deg);
+    transform-origin: 0;
+    z-index: 2;
+}
+
+.right {
+    transform: skewY(18deg);
+    transform-origin: right;
+}
+
+.topl {
+    transform: skewY(-18deg);
+    transform-origin: bottom;
+    min-height: 50%;
+}
+
+.topr {
+    transform: skewY(18deg);
+    transform-origin: bottom;
+    min-height: 50%;
+}
+
+.main::before {
+    content: '';
+    position: absolute;
+    background-image: -o-linear-gradient(bottom, #94C4DB 30%, #E8BDC2 40%);
+    background-image: -moz-linear-gradient(bottom, #94C4DB 30%, #E8BDC2 40%);
+    background-image: -webkit-linear-gradient(bottom, #94C4DB 30%, #E8BDC2 40%);
+    background-image: linear-gradient(0deg, #94C4DB 30%,  #E8BDC2 40%);
+    z-index: 2;
+    display: block;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    opacity: 0;
+}
+
+.title {
+    text-align: center;
+    display: inline-block;
+    position: absolute;
+    top: 20%;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 10%;
+    margin: 0 auto;
+    opacity: 0;
+    -webkit-transition: opacity 1.5s ease-in-out;
+    -moz-transition: opacity 1.5s ease-in-out;
+    -o-transition: opacity 1.5s ease-in-out;
+    transition: opacity 1.5s ease-in-out;
+    z-index: 999;
+    color: #fff;
+    text-shadow: .8px .8px #000;
+}
+
+.show {
+    opacity: 1;
+}
+
+.title h1 {
+    margin: 0 0 20px 0;
+}
+
+.title h3 {
+    font-weight: 300;
+    width: 100%;
+    margin: 10px 0 0 0;
+}
+
+.projects {
+    min-width: 100%;
+    min-height: 100%;
+    left: 0;
+    top: 0;
+    margin: 0;
+}
+
+.container {
+    margin: 15px;
+}
+
+.projects h2, .projects p {
+    text-align: center;
+}
