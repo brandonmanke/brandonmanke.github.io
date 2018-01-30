@@ -1,3 +1,7 @@
+/**
+ * Idea: make each gradient appear one at a time 
+ * or maybe make top then bottom ones appear etc.
+ */
 ;(function() {
     window.onload = function() {
         console.log('asd')
