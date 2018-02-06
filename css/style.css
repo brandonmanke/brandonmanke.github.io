@@ -1,0 +1,337 @@
+html {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    height: 100%;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 300;
+    background-color: #222f35;
+    /*background-color: #102026; /* maybe idk */
+}
+
+a {
+    color: #a0433d;
+}
+
+/* TITLE SECTION (Everything cover/title page realted) */
+
+.background {
+    position: absolute;
+    z-index: -1;
+    min-width: 100%;
+    min-height: 100%;
+    left: 0;
+    top: 0;
+    /*
+     check related photos for both just incase
+     - https://unsplash.com/photos/YUa9f1wJOLg
+     - https://unsplash.com/@jdiegoph
+    */
+    background: url("../images/diego-ph-222506.jpg") center bottom no-repeat;
+    /*background: url("../images/diego-ph-282048.jpg") center top no-repeat;*/
+    /*background: url("./samuel-ferrara-318709.jpg") center center no-repeat;*/
+    background-size: cover;
+    opacity: 0;
+    -webkit-transition: opacity 1s ease-in-out;
+    -transition: opacity 1s ease-in-out;
+    -o-transition: opacity 1s ease-in-out;
+    transition: opacity 1s ease-in-out;
+    /* background-attachment: fixed; /* maybe */
+}
+
+.wrapper {
+    position: relative;
+    min-width: 100%;
+    min-height: 100%;
+    left: 0;
+    top: 0;
+}
+
+.gradient {
+    position: absolute;
+    /*background-position: fixed;*/
+    background-size: cover;
+    min-width: 100%;
+    min-height: 100%;
+    left: 0;
+    top: 0;
+    background-color: #E8BDC2;
+    /* blue #94C4DB to pink #E8BDC2 */
+    /* option 2 ? #d3ab7a to #21677e */
+    background-image: linear-gradient(0deg, #222f35 10%, #a84f54 65%);
+    background-image: -o-linear-gradient(bottom, #222f35 10% #a84f54 65%);
+    background-image: -moz-linear-gradient(bottom, #222f35 10% #a84f54 65%);
+    background-image: -webkit-linear-gradient(bottom, #222f35 10% #a84f54 65%);
+    /*background: url("./background.png") center center no-repeat;*/
+    background-size: cover;
+    /*
+    -webkit-transition: opacity 1s ease-in-out;
+    -transition: opacity 1s ease-in-out;
+    -o-transition: opacity 1s ease-in-out;
+    transition: opacity 1s ease-in-out;
+    */
+    opacity: .25;
+}
+
+.left {
+    transform: skewY(-18deg);
+    transform-origin: 0;
+    z-index: 2;
+}
+
+.right {
+    transform: skewY(18deg);
+    transform-origin: right;
+}
+
+.topl {
+    transform: skewY(-18deg);
+    transform-origin: bottom;
+    min-height: 50%;
+}
+
+.topr {
+    transform: skewY(18deg);
+    transform-origin: bottom;
+    min-height: 50%;
+}
+
+/*.projects::before {
+    content: '';
+    position: absolute;
+    background-image: -o-linear-gradient(bottom, #94C4DB 30%, #E8BDC2 40%);
+    background-image: -moz-linear-gradient(bottom, #94C4DB 30%, #E8BDC2 40%);
+    background-image: -webkit-linear-gradient(bottom, #94C4DB 30%, #E8BDC2 40%);
+    background-image: linear-gradient(0deg, #94C4DB 30%,  #E8BDC2 40%);
+    z-index: 2;
+    display: block;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    opacity: 0;
+}*/
+
+.title {
+    text-align: center;
+    display: inline-block;
+    position: absolute;
+    top: 20%;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 25%;
+    margin: 0 auto;
+    opacity: 0;
+    -webkit-transition: opacity 1.5s ease-in-out;
+    -moz-transition: opacity 1.5s ease-in-out;
+    -o-transition: opacity 1.5s ease-in-out;
+    transition: opacity 1.5s ease-in-out;
+    z-index: 999;
+    color: #fff;
+    text-shadow: .8px .8px #000;
+}
+
+.show {
+    opacity: 1 !important;
+}
+
+.title h1 {
+    margin: 0 0 20px 0;
+}
+
+.title h3 {
+    font-weight: 300;
+    width: 100%;
+    margin: 10px 0 0 0;
+}
+
+/* MAIN SECTION (Anything below title area) */
+
+.main {
+
+}
+
+/* ABOUT SECTION */
+
+.about {
+    margin: 25px auto;
+    width: 65%;
+    color: #222f35;
+    text-align: center;
+    background-color: #d1d8cd;
+    /* ececec vs fff ? */
+    border-radius: 3px;
+    opacity: 0;
+    -webkit-transition: opacity 1s linear;
+    -transition: opacity 1s linear;
+    -o-transition: opacity 1s linear;
+    transition: opacity 1s linear;
+    animation: pop-in 1s cubic-bezier(.65,.05,.36,1) forwards;
+    animation-delay: 1s;
+}
+
+@keyframes pop-in {
+    from { transform: translateY(10px); } 
+    to { transform: translateY(0px); }
+}
+
+.about h2 {
+    padding: 10px 0 5px 0;
+}
+
+.about p {
+    width: 90%;
+    margin: 0 auto 10px auto;
+    padding-bottom: 5px;
+    line-height: 1.3;
+}
+
+.info {
+    text-align: left;
+    padding-bottom: 15px;
+}
+
+.contact {
+    width: 100%;
+}
+
+.contact-list {
+    list-style: none;
+    padding-left: 0;
+    width: 162px;
+    margin: 0 auto;
+}
+
+.contact-list li {
+    margin: 0 2.5px 0 2.5px;
+    display: inline;
+}
+
+.contact-list li a {
+    background-color: transparent;
+    color: #fff;
+    text-decoration: none;
+}
+
+.shadow {
+    /* 
+     * Not really sure how significant of a 
+     * difference this color makes compared to black 
+     */
+    -moz-box-shadow: 1px 1px 10px #030405;
+    -webkit-box-shadow: 1px 1px 10px #030405;
+    box-shadow: 1px 1px 10px #030405; 
+}
+
+/* PROJECTS SECTION */
+
+.projects {
+    /*color: #C3CCDB;*/
+    color: #d1d8cd;
+    /*width: 100vw;
+    height: 100vh;*/
+    left: 0;
+    top: 0;
+    padding-top: 10px;
+    margin: 0 0 0 0; /* this is a temp fix */
+}
+
+.container {
+    margin: 20px auto;
+    width: 90%;
+}
+
+.projects h2 {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.projects ul {
+    width: 100%;
+    margin: 0 auto;
+    padding-left: 0;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.project {
+    width: 265px;
+    height: 215px;
+    margin: 5px 5px;
+    text-align: center;
+    list-style-type: none;
+    text-align: center;
+    /*border: #000 .1px solid; /* init #eeeeee */
+    transition: .2s;
+    background-position: center top;
+    background-size: cover;
+}
+
+.project:hover {
+    cursor: pointer;
+}
+
+.color {
+    width: 100%;
+    height: 100%;
+    background-image: linear-gradient(0deg, rgba(34, 47, 54, .57) 30%, rgba(166, 78, 82, .70) 95%);
+    background-image: -o-linear-gradient(bottom, rgba(34, 47, 54, .57) 10%, rgba(166, 78, 82, .70) 95%);
+    background-image: -moz-linear-gradient(bottom, rgba(34, 47, 54, .57) 10%, rgba(166, 78, 82, .70) 95%);
+    background-image: -webkit-linear-gradient(bottom, rgba(34, 47, 54, .57) 10%, rgba(166, 78, 82, .70) 95%);
+    opacity: 0;
+}
+
+.color:hover {
+    transition: all .5s ease;
+    opacity: 1;
+}
+
+.color a {
+    font-weight: 400;
+    color: #fff;
+    text-shadow: 1px 1px #000;
+    text-decoration: none;
+    display: block;
+    padding-top: 70px;
+    padding-bottom: 88px;
+    background-size: cover;
+}
+
+.color a div {
+    -webkit-transition: opacity 1s ease-in-out;
+    -transition: opacity 1s ease-in-out;
+    -o-transition: opacity 1s ease-in-out;
+    transition: opacity 1s ease-in-out;
+}
+
+#p1 {
+    background-image: url("../images/node-destiny-2.png");
+}
+
+#p2 {
+    background-image: url("../images/smart-mirror.png");
+}
+
+#p3 {
+    background-image: url("../images/ctwarren.png");
+}
+
+#p4 {
+    background-image: url("../images/graph-algo.png");
+}
+
+.color a, .color span {
+    display: block;
+}
+
+.color a span {
+    font-weight: 300;
+    display: block;
+    margin-top: 20px;
+}
