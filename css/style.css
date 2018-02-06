@@ -153,9 +153,7 @@ a {
 /* MAIN SECTION (Anything below title area) */
 
 .main {
-    height: 100vh;
-    width: 100vw;
-    overflow: auto;
+    
 }
 
 /* ABOUT SECTION */
@@ -269,7 +267,7 @@ a {
     text-align: center;
     list-style-type: none;
     text-align: center;
-    border: #d1d8cd 1px solid; /* init #eeeeee */
+    /*border: #d1d8cd 1px solid; /* init #eeeeee */
     transition: .2s;
     background-position: center;
     background-size: cover;
@@ -284,13 +282,47 @@ a {
     height: 100%;
 }
 
+.color:hover {
+
+}
+
 .color a {
     font-weight: 400;
     color: #fff;
+    text-shadow: 1px 1px #000;
     text-decoration: none;
     display: block;
     padding-top: 70px;
     padding-bottom: 88px;
+    background-size: cover;
+}
+
+.color a div {
+    opacity: 0;
+    -webkit-transition: opacity 1s ease-in-out;
+    -transition: opacity 1s ease-in-out;
+    -o-transition: opacity 1s ease-in-out;
+    transition: opacity 1s ease-in-out;
+}
+
+.color a div:hover {
+    opacity: 1;
+}
+
+#p1 {
+    background-image: url("../images/node-destiny-2.png");
+}
+
+#p2 {
+    background-image: url("../images/smart-mirror.png");
+}
+
+#p3 {
+    background-image: url("../images/ctwarren.png");
+}
+
+#p4 {
+    background-image: url("../images/graph-algo.png");
 }
 
 .color a, .color span {
