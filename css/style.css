@@ -153,7 +153,7 @@ a {
 /* MAIN SECTION (Anything below title area) */
 
 .main {
-    
+
 }
 
 /* ABOUT SECTION */
@@ -267,9 +267,9 @@ a {
     text-align: center;
     list-style-type: none;
     text-align: center;
-    /*border: #d1d8cd 1px solid; /* init #eeeeee */
+    /*border: #000 .1px solid; /* init #eeeeee */
     transition: .2s;
-    background-position: center;
+    background-position: center top;
     background-size: cover;
 }
 
@@ -280,10 +280,16 @@ a {
 .color {
     width: 100%;
     height: 100%;
+    background-image: linear-gradient(0deg, rgba(34, 47, 54, .57) 30%, rgba(166, 78, 82, .70) 95%);
+    background-image: -o-linear-gradient(bottom, rgba(34, 47, 54, .57) 10%, rgba(166, 78, 82, .70) 95%);
+    background-image: -moz-linear-gradient(bottom, rgba(34, 47, 54, .57) 10%, rgba(166, 78, 82, .70) 95%);
+    background-image: -webkit-linear-gradient(bottom, rgba(34, 47, 54, .57) 10%, rgba(166, 78, 82, .70) 95%);
+    opacity: 0;
 }
 
 .color:hover {
-
+    transition: all .5s ease;
+    opacity: 1;
 }
 
 .color a {
@@ -298,15 +304,10 @@ a {
 }
 
 .color a div {
-    opacity: 0;
     -webkit-transition: opacity 1s ease-in-out;
     -transition: opacity 1s ease-in-out;
     -o-transition: opacity 1s ease-in-out;
     transition: opacity 1s ease-in-out;
-}
-
-.color a div:hover {
-    opacity: 1;
 }
 
 #p1 {
