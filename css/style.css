@@ -15,6 +15,8 @@ a {
     color: #a0433d;
 }
 
+/* TITLE SECTION (Everything cover/title page realted) */
+
 .background {
     position: absolute;
     z-index: -1;
@@ -148,32 +150,15 @@ a {
     margin: 10px 0 0 0;
 }
 
+/* MAIN SECTION (Anything below title area) */
+
 .main {
     height: 100vh;
     width: 100vw;
     overflow: auto;
 }
 
-.projects {
-    /*color: #C3CCDB;*/
-    color: #d1d8cd;
-    /*width: 100vw;
-    height: 100vh;*/
-    left: 0;
-    top: 0;
-    padding-top: 10px;
-    margin: 0 0 0 0; /* this is a temp fix */
-}
-
-.container {
-    margin: 20px auto;
-    width: 50%;
-}
-
-.projects h2 {
-    text-align: center;
-    margin-bottom: 15px;
-}
+/* ABOUT SECTION */
 
 .about {
     margin: 25px auto;
@@ -243,4 +228,77 @@ a {
     -moz-box-shadow: 1px 1px 10px #030405;
     -webkit-box-shadow: 1px 1px 10px #030405;
     box-shadow: 1px 1px 10px #030405; 
+}
+
+/* PROJECTS SECTION */
+
+.projects {
+    /*color: #C3CCDB;*/
+    color: #d1d8cd;
+    /*width: 100vw;
+    height: 100vh;*/
+    left: 0;
+    top: 0;
+    padding-top: 10px;
+    margin: 0 0 0 0; /* this is a temp fix */
+}
+
+.container {
+    margin: 20px auto;
+    width: 90%;
+}
+
+.projects h2 {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.projects ul {
+    width: 100%;
+    margin: 0 auto;
+    padding-left: 0;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.project {
+    width: 265px;
+    height: 215px;
+    margin: 5px 5px;
+    text-align: center;
+    list-style-type: none;
+    text-align: center;
+    border: #d1d8cd 1px solid; /* init #eeeeee */
+    transition: .2s;
+    background-position: center;
+    background-size: cover;
+}
+
+.project:hover {
+    cursor: pointer;
+}
+
+.color {
+    width: 100%;
+    height: 100%;
+}
+
+.color a {
+    font-weight: 400;
+    color: #fff;
+    text-decoration: none;
+    display: block;
+    padding-top: 70px;
+    padding-bottom: 88px;
+}
+
+.color a, .color span {
+    display: block;
+}
+
+.color a span {
+    font-weight: 300;
+    display: block;
+    margin-top: 20px;
 }
