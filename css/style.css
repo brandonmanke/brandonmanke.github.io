@@ -175,6 +175,13 @@ a {
     animation-delay: 1s;
 }
 
+/* tablet, landscape iPad, lo-res laptops ands desktops */ 
+@media screen and (max-width:961px) {
+    .about {
+        width: 85%;
+    }
+}
+
 @keyframes pop-in {
     from { transform: translateY(10px); } 
     to { transform: translateY(0px); }
