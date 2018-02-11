@@ -23,6 +23,7 @@
         }, 1000)
         setTimeout(function() {
             document.querySelector('.about').className += ' show'
+            document.querySelector('.projects').className += ' show'
         }, 1000)
     }
 })(this)

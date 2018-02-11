@@ -165,7 +165,6 @@ a {
     text-align: center;
     background-color: #d1d8cd;
     /* ececec vs fff ? */
-    border-radius: 3px;
     opacity: 0;
     -webkit-transition: opacity 1s linear;
     -transition: opacity 1s linear;
@@ -246,6 +245,13 @@ a {
     top: 0;
     padding-top: 10px;
     margin: 0 0 0 0; /* this is a temp fix */
+    opacity: 0;
+    -webkit-transition: opacity 1s linear;
+    -transition: opacity 1s linear;
+    -o-transition: opacity 1s linear;
+    transition: opacity 1s linear;
+    animation: pop-in 1s cubic-bezier(.65,.05,.36,1) forwards;
+    animation-delay: 1s;
 }
 
 .container {
