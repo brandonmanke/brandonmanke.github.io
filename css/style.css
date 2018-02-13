@@ -153,7 +153,7 @@ a {
 /* MAIN SECTION (Anything below title area) */
 
 .main {
-
+    padding-bottom: 100px;
 }
 
 /* ABOUT SECTION */
@@ -209,12 +209,13 @@ a {
 .contact-list {
     list-style: none;
     padding-left: 0;
-    width: 162px;
     margin: 0 auto;
+    display: flex;
+    justify-content: center;
 }
 
 .contact-list li {
-    margin: 0 2.5px 0 2.5px;
+    margin: 0 4.5px 0 4.5px;
     display: inline;
 }
 
@@ -222,6 +223,7 @@ a {
     background-color: transparent;
     color: #fff;
     text-decoration: none;
+    display: block;
 }
 
 .shadow {
