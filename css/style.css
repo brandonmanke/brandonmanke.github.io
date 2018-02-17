@@ -150,6 +150,33 @@ a {
     margin: 10px 0 0 0;
 }
 
+.button {
+    color: #fff;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 30px;
+    width: 110px;
+    height: 35px;
+    border: 1px #fff solid;
+    -webkit-transition: all .5s ease;
+    -moz-transition: all .5s ease;
+    -o-transition: all .5s ease;
+    transition: all .5s ease;
+}
+
+.button:hover {
+    background-color: #fff;
+    color: transparent;
+    -webkit-transition: all .5s ease;
+    -moz-transition: all .5s ease;
+    -o-transition: all .5s ease;
+    transition: all .5s ease;
+}
+
+.button span {
+    line-height: 33px;
+}
+
 /* MAIN SECTION (Anything below title area) */
 
 .main {
