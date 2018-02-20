@@ -229,6 +229,14 @@ a {
     padding-bottom: 15px;
 }
 
+.info p a {
+    text-decoration: none;
+}
+
+.info p a:hover {
+    color: #9b0900;
+}
+
 .contact {
     width: 100%;
 }
