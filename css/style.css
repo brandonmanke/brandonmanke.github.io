@@ -377,6 +377,10 @@ a {
     background-image: url("../images/graph-algo.png");
 }
 
+#p5 {
+    background-image: url("../images/snap-link.png") cover;
+}
+
 .color a, .color span {
     display: block;
 }
