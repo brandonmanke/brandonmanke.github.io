@@ -378,7 +378,12 @@ a {
 }
 
 #p5 {
-    background-image: url("../images/snap-link.png") cover;
+    background-image: url("../images/snap-link.png");
+    background-size: cover;
+}
+
+#p6 {
+    background-image: url("../images/kmeans.png");
 }
 
 .color a, .color span {
