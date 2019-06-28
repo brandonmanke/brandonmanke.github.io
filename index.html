@@ -6,7 +6,7 @@
     <meta name=viewport content="width=device-width, initial-scale=1">
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="./css/normalize.css">
-    <link rel="stylesheet" type="text/css" href="./css/style.min.css">
+    <link rel="stylesheet" type="text/css" href="./css/style.css">
     <link rel="author" href="https://github.com/brandonmanke"/>
     <link rel="shortcut icon" href="favicon/favicon.ico">
     <link rel="icon" sizes="16x16 32x32 64x64" href="favicon/favicon.ico">
@@ -40,137 +40,129 @@
 </head>
 <body>
     <div class="background"></div>
-    <div class="wrapper">
-        <div class="gradient topl"></div>
-        <!--<div class="gradient topr"></div>-->
-        <div class="gradient left"></div>
-        <!--<div class="gradient right"></div>-->
-    </div>
+    <div class="wrapper"></div>
     <div class="title">
         <h1>Brandon Manke</h1>
-        <h3>I have a passion for learning new things and building software to help others.</h3>
+        <h3>New Graduate in Computer Science</h3>
         <a class="button" target="_blank" href="./resume.pdf"><span>Resume</span></a>
+        <div class="contact">
+            <ul class="contact-list">
+                <li>
+                    <a href="https://github.com/brandonmanke">
+                        <img id="github"
+                                width="32"
+                                height="32" 
+                                src="./images/github.png">
+                    </a>
+                </li>
+                <li>
+                    <a href="https://www.linkedin.com/in/brandonmanke">
+                        <img id="linkedin"
+                                width="32"
+                                height="32" 
+                                src="./images/linkedin.png">
+                    </a>
+                </li>
+                <li>
+                    <!-- https://medium.com/@brandonmanke -->
+                    <a href="https://blog.brandonmanke.com">
+                        <img id="medium"
+                                width="32"
+                                height="32" 
+                                src="./images/medium.png">
+                    </a>
+                </li>
+                <li>
+                    <a href="https://www.flickr.com/photos/bnm_/">
+                        <img id="flickr"
+                                width="32"
+                                height="32" 
+                                src="./images/flickr.png">
+                    </a>
+                </li>
+            </ul>
+        </div>
     </div>
     <div class="main">
         <div class="about">
             <h2>About Me</h2>
             <div class="info">
                 <p>
-                    Currently pursuing a B.S. in Computer Science at <a href="https://illinoisstate.edu/">Illinois State University</a>. I have a diverse set of skills in a variety of languages and over 2 years of experience as a freelance full stack web engineer. I am an advocate for open-source software and contribute to the open-source community regularly. Some of my hobbies outside of programming are photography and hiking. If you would like to seem some of my photos I have a link to my Flickr below. 
+                    I'm an ambitious developer with skills in a variety of languages and technologies. 
+                    I've recently graduated with a B.S. in Computer Science at <a href="https://ilstu.edu/">Illinois State University</a>. 
+                    This past school year, I worked at <a href="https://statefarm.com/">State Farm</a> as a software developer intern for 12 months. 
+                    I also have over 2 years of experience as a freelance full-stack developer. 
+                    Some of my hobbies outside of programming include <a href="https://www.flickr.com/photos/bnm_/">photography</a> and hiking.
                 </p>
                 <p>
-                    I am currently interested in an internship or full-time position to continue following my passion.
-                    <br>
-                    Feel free to send me an email at: 
-                    <a href="mailto:me@brandonmanke.com">me[at]brandonmanke.com</a>.
-                    <br>
+                    I am currently seeking a full-time position as a software engineer to continue following my passion.
+                    <br><br>
+                    Feel free to send me an email at: <a>me[at]brandonmanke.com</a>.
+                    <br><br>
                     You can find my resume <a href="./resume.pdf">here</a>,
-                    as well as some of my work in the links below.
+                    as well as some of my work & projects in the links below.
                 </p>
-                <div class="contact">
-                    <ul class="contact-list">
-                        <li>
-                            <a href="https://github.com/brandonmanke">
-                                <img id="github"
-                                     width="32"
-                                     height="32" 
-                                     src="./images/github.png">
-                            </a>
-                        </li>
-                        <li>
-                            <a href="https://www.linkedin.com/in/brandonmanke">
-                                <img id="linkedin"
-                                     width="32"
-                                     height="32" 
-                                     src="./images/linkedin.png">
-                            </a>
-                        </li>
-                        <li>
-                            <!-- https://medium.com/@brandonmanke -->
-                            <a href="https://blog.brandonmanke.com">
-                                <img id="medium"
-                                     width="32"
-                                     height="32" 
-                                     src="./images/medium.png">
-                            </a>
-                        </li>
-                        <li>
-                            <a href="https://www.flickr.com/photos/bnm_/">
-                                <img id="flickr"
-                                     width="32"
-                                     height="32" 
-                                     src="./images/flickr.png">
-                            </a>
-                        </li>
-                    </ul>
-                </div>
             </div>
         </div>
         <div class="projects">
             <div class="container">
                 <h2>Projects</h2>
                 <ul class="projects-list">
-                    <!-- Undecided on shadow for li -->
-                    <li class="project" id="p1">
-                        <div class="color">
-                            <a href="https://github.com/brandonmanke/node-destiny-2">
-                                <div>
-                                    Node Destiny 2
-                                    <span>Personal Project</span>
-                                </div>
-                            </a>
-                        </div>
-                    </li>
-                    <li class="project" id="p5">
-                        <div class="color">
-                            <a href="https://snap-link.herokuapp.com/">
-                                <div>
-                                    Snap Link
-                                    <span>Personal Project</span>
-                                </div>
-                            </a>
-                        </div>
-                    </li>
-                    <li class="project" id="p2">
-                        <div class="color">
-                            <a href="https://github.com/brandonmanke/smart-mirror">
-                                <div>
-                                    Smart Mirror
-                                    <span>Personal Project</span>
-                                </div>
-                            </a>
-                        </div>
-                    </li>
-                    <li class="project" id="p3">
-                        <div class="color">
-                            <a href="https://ctwarrenbuilders.com/">
-                                <div>    
-                                    CT Warren Builders
-                                    <span>Web Developer</span>
-                                </div>
-                            </a>
-                        </div>
-                    </li>
-                    <li class="project" id="p4">
-                        <div class="color">
-                            <a href="https://brandonmanke.github.io/graph-project/">
-                                <div>
-                                    Graph Algorithm Visualization
-                                    <span>Personal Project</span>
-                                </div>
-                            </a>
-                        </div>
-                    </li>
-                    <li class="project" id="p6">
-                        <div class="color">
-                            <a href="https://github.com/brandonmanke/k-means-clustering/">
-                                <div>
-                                    K-Means Clustering Algorithm
-                                    <span>Personal Project</span>
-                                </div>
-                            </a>
-                        </div>
-                    </li>
+                    <div class="el">
+                        <a href="https://csgoclicker.net/">
+                            <li class="project">
+                                <span class="name">CSGO Clicker</span>
+                                - 
+                                <span>Backend Developer - (TypeScript, MongoDB, Redis, Docker)</span>
+                            </li>
+                        </a>
+                    </div>
+                    <div class="el">
+                        <a href="https://github.com/brandonmanke/node-destiny-2">
+                            <li class="project">
+                                <span class="name">Node Destiny 2</span>
+                                - 
+                                <span>Node.js Library - (JavaScript)</span>
+                            </li>
+                        </a>
+                    </div>
+                    <div class="el">
+                        <a href="https://github.com/brandonmanke/ds">
+                            <li class="project">
+                                <span class="name">Event Notifier</span>
+                                - 
+                                <span>Project - (Go, Redis, Docker, JavaScript, React)</span>
+                            </li>
+                        </a>
+                    </div>
+                    <div class="el">
+                        <a href="https://github.com/brandonmanke/k-means-clustering">
+                            <li class="project">
+                                <span class="name">K-Means Clustering</span>
+                                - 
+                                <span>Project - (C++, Docker)</span>
+                            </li>
+                        </a>
+                    </div>
+                    <div class="el">
+                        <a href="https://brandonmanke.github.io/graph-project/">
+                            <li class="project">
+                                <span class="name">Graph Algorithm Visualization</span>
+                                - 
+                                <span>Project - (HTML, CSS, JavaScript)</span>
+                            </li>
+                        </a>
+                    </div>
+                    <div class="el">
+                        <a href="https://github.com/brandonmanke/smart-mirror">
+                            <li class="project">
+                                <span class="name">Smart Mirror</span>
+                                - 
+                                <span>Project - (Rasberry Pi, JavaScript, HTML, CSS)</span>
+                            </li>
+                        </a>
+                    </div>
+                    <!--https://snap-link.herokuapp.com/-->
                 </ul>
             </div>
         </div>
