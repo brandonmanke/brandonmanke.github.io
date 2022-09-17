@@ -29,11 +29,11 @@ a {
     top: 0;
     background: url("../images/bg-photo.jpg") center bottom no-repeat;
     background-size: cover;
-    opacity: 0;
-    -webkit-transition: opacity 1s ease-in-out;
+    opacity: 1;
+    /*-webkit-transition: opacity 1s ease-in-out;
     -transition: opacity 1s ease-in-out;
     -o-transition: opacity 1s ease-in-out;
-    transition: opacity 1s ease-in-out;
+    transition: opacity 1s ease-in-out;*/
     /*background-attachment: fixed; /* maybe */
 }
 
@@ -56,11 +56,11 @@ a {
     right: 0;
     height: 25%;
     margin: 0 auto;
-    opacity: 0;
-    -webkit-transition: opacity 1.5s ease-in-out;
+    opacity: 1;
+    /*-webkit-transition: opacity 1.5s ease-in-out;
     -moz-transition: opacity 1.5s ease-in-out;
     -o-transition: opacity 1.5s ease-in-out;
-    transition: opacity 1.5s ease-in-out;
+    transition: opacity 1.5s ease-in-out;*/
     z-index: 999;
     color: #fff;
     text-shadow: .8px .8px #000;
@@ -124,13 +124,13 @@ a {
     /*background-color: #d1d8cd;*/
     background-color: #f8f9fa; /* #f8f9fa;*/
     /* ececec vs fff ? */
-    opacity: 0;
-    -webkit-transition: opacity 750ms linear;
+    opacity: 1;
+    /*-webkit-transition: opacity 750ms linear;
     -transition: opacity 750ms linear;
     -o-transition: opacity 750ms linear;
     transition: opacity 750ms linear;
     animation: pop-in 750ms cubic-bezier(.65,.05,.36,1) forwards;
-    animation-delay: 750ms;
+    animation-delay: 750ms;*/
     padding: 10px 0;
 }
 
@@ -201,13 +201,13 @@ a {
     top: 0;
     padding-top: 10px;
     margin: 0;
-    opacity: 0;
-    -webkit-transition: opacity 750ms linear;
+    opacity: 1;
+    /*-webkit-transition: opacity 750ms linear;
     -transition: opacity 750ms linear;
     -o-transition: opacity 750ms linear;
     transition: opacity 750ms linear;
     animation: pop-in 750ms cubic-bezier(.65,.05,.36,1) forwards;
-    animation-delay: 750ms;
+    animation-delay: 750ms;*/
 }
 
 .container {
