@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark-mode">
 <head>
     <title>Brandon Manke</title>
     <meta charset="utf-8">
     <meta name=viewport content="width=device-width, initial-scale=1">
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400" rel="stylesheet">
+    <link rel="preload" fetchpriority="high" as="image" href="./images/bg-dark.jpg" type="image/jpg">
+    <link rel=preconnect href="https://fonts.googleapis.com/css?family=Open+Sans:300,400" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="./css/normalize.css">
     <link rel="stylesheet" type="text/css" href="./css/style.css">
     <link rel="author" href="https://github.com/brandonmanke"/>
@@ -29,22 +30,25 @@
     <meta name="msapplication-TileImage" content="favicon/favicon-144.png">
     <meta name="msapplication-config" content="favicon/browserconfig.xml">
     <!-- Global Site Tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-106774566-1"></script>
+    <!--<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106774566-1"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments)};
       gtag('js', new Date());
 
       gtag('config', 'UA-106774566-1');
-    </script>
+    </script>-->
 </head>
-<body>
+<body class="dark-mode">
+    <button class="mode-toggle" id="mode-toggle" aria-label="Toggle dark/light mode">
+        <img src="./images/light-mode.svg" alt="Toggle light mode" id="mode-icon">
+    </button>
     <div class="background"></div>
     <div class="wrapper"></div>
     <div class="title">
         <h1>Brandon Manke</h1>
         <h3>Software Engineer</h3>
-        <a class="button" target="_blank" href="./resume.pdf"><span>Resume</span></a>
+        <a class="button" id="resume" target="_blank" href="./resume.pdf"><span>Resume</span></a>
         <div class="contact">
             <ul class="contact-list">
                 <li>
@@ -160,11 +164,34 @@
                             </li>
                         </a>
                     </div>
-                    <!--https://snap-link.herokuapp.com/-->
                 </ul>
             </div>
         </div>
     </div>
-    <!--<script src="./script/script.js"></script>-->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggleButton = document.getElementById('mode-toggle');
+            const modeIcon = document.getElementById('mode-icon');
+            const html = document.documentElement;
+            const body = document.body;
+            
+            // Add click event listener to toggle button
+            toggleButton.addEventListener('click', function() {
+                // Toggle dark mode classes
+                html.classList.toggle('dark-mode');
+                body.classList.toggle('dark-mode');
+                
+                // Update button icon based on current mode
+                const isDarkMode = body.classList.contains('dark-mode');
+                if (isDarkMode) {
+                    modeIcon.src = './images/light-mode.svg';
+                    modeIcon.alt = 'Toggle light mode';
+                } else {
+                    modeIcon.src = './images/dark-mode.svg';
+                    modeIcon.alt = 'Toggle dark mode';
+                }
+            });
+        });
+    </script>
 </body>
 </html>
