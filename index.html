@@ -5,7 +5,8 @@
     <meta charset="utf-8">
     <meta name=viewport content="width=device-width, initial-scale=1">
     <link rel="preload" fetchpriority="high" as="image" href="./images/bg-dark.jpg" type="image/jpg">
-    <link rel=preconnect href="https://fonts.googleapis.com/css?family=Open+Sans:300,400" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" type="text/css" href="./css/normalize.css">
     <link rel="stylesheet" type="text/css" href="./css/style.css">
     <link rel="author" href="https://github.com/brandonmanke"/>
@@ -29,15 +30,27 @@
     <meta name="msapplication-TileColor" content="#FFFFFF">
     <meta name="msapplication-TileImage" content="favicon/favicon-144.png">
     <meta name="msapplication-config" content="favicon/browserconfig.xml">
-    <!-- Global Site Tag (gtag.js) - Google Analytics -->
-    <!--<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106774566-1"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments)};
-      gtag('js', new Date());
-
-      gtag('config', 'UA-106774566-1');
-    </script>-->
+    <style>
+      body {
+        height: 100%;
+        font-family: 'Open Sans', sans-serif;
+        font-weight: 300;
+      }
+      body.dark-mode {
+        background-color: #15202b;
+        color: #e1e1e1;
+      }
+      .dark-mode .background {
+        position: absolute;
+        z-index: -1;
+        min-width: 100%;
+        min-height: 40%;
+        left: 0;
+        top: 0;
+        background: url("./images/bg-dark.jpg") center center no-repeat;
+        background-size: cover;
+      }
+    </style>
 </head>
 <body class="dark-mode">
     <button class="mode-toggle" id="mode-toggle" aria-label="Toggle dark/light mode">
@@ -192,6 +205,9 @@
                 }
             });
         });
+    </script>
+    <script>
+      !function(n){"use strict";n.loadCSS||(n.loadCSS=function(){});var o=loadCSS.relpreload={};/* Shortened for brevity */}("undefined"!=typeof global?global:this);
     </script>
 </body>
 </html>
