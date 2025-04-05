@@ -273,3 +273,93 @@ a {
 .name {
     color: #004f6b;
 }
+
+/* Theme toggle button */
+.theme-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 1000;
+}
+
+.theme-toggle .dark-mode {
+    display: none;
+}
+
+/* Dark mode styles */
+body.dark-mode {
+    background-color: #1a1f2e; /* Deep blue-gray background */
+    color: #e0e0e0; /* Light gray text for better readability */
+}
+
+body.dark-mode .about {
+    background-color: #2c3347; /* Slightly lighter blue-gray for content areas */
+    color: #e0e0e0;
+}
+
+body.dark-mode .project {
+    color: #e0e0e0;
+}
+
+body.dark-mode a {
+    color: #ffd700; /* Gold color for links, inspired by city lights */
+}
+
+body a:hover {
+    color: #ff9e44 !important;
+}
+
+body.dark-mode .name {
+    color: #ffd700; /* Matching gold color for names */
+}
+
+body.dark-mode .project:hover span {
+    color: #ff9e44;
+}
+
+/* You might want to adjust other elements as well, for example: */
+body.dark-mode .button {
+    border-color: #ffd700;
+    color: #ffd700;
+}
+
+body.dark-mode .button:hover {
+    background-color: #ffd700;
+    color: #1a1f2e;
+}
+
+/*body.dark-mode .background {
+    top: 0;
+    left: 0;
+    width: 70%;
+    background: url("../images/bg-photo-dark.jpg") center center no-repeat;
+    background-size: cover; 
+    z-index: -999999;
+}*/
+
+body.dark-mode .background {
+    top: 0;
+    left: 0;
+    width: 100%;
+    overflow: hidden;
+    z-index: -999999;
+}
+
+body.dark-mode .background::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    transform: translate(-50%, -50%) scale(1.2); /* Adjust scale to zoom out */
+    background: url("../images/bg-photo-dark.jpg") center center no-repeat;
+    background-size: cover;
+    filter: grayscale(0%);
+}

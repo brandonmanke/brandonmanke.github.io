@@ -39,6 +39,10 @@
     </script>
 </head>
 <body>
+    <button id="theme-toggle" class="theme-toggle">
+        <span class="light-mode">🌞</span>
+        <span class="dark-mode">🌙</span>
+    </button>
     <div class="background"></div>
     <div class="wrapper"></div>
     <div class="title">
@@ -166,5 +170,23 @@
         </div>
     </div>
     <!--<script src="./script/script.js"></script>-->
+    <script>
+        const themeToggle = document.getElementById('theme-toggle');
+        const body = document.body;
+    
+        // Check for saved theme preference or default to light mode
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        body.classList.add(currentTheme + '-mode');
+    
+        themeToggle.addEventListener('click', () => {
+            if (body.classList.contains('light-mode')) {
+                body.classList.replace('light-mode', 'dark-mode');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                body.classList.replace('dark-mode', 'light-mode');
+                localStorage.setItem('theme', 'light');
+            }
+        });
+    </script>
 </body>
 </html>
