@@ -12,10 +12,62 @@ body {
     /*background-color: #102026; /* maybe idk */
 }
 
+body.dark-mode {
+    background-color: #15202b;
+    color: #e1e1e1;
+}
+
 a {
     /*color: #a0433d;*/
     color: #005979;
     text-decoration: none;
+}
+
+.dark-mode a {
+    color: #4dacdf;
+}
+
+.dark-mode #resume {
+    color: #fff;
+}
+
+/* Dark Mode Toggle */
+.mode-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.7);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    padding: 0;
+}
+
+.mode-toggle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+}
+
+.dark-mode .mode-toggle {
+    background: rgba(31, 41, 55, 0.7);
+}
+
+.mode-toggle img {
+    width: 24px;
+    height: 24px;
+    filter: invert(0);
+}
+
+.dark-mode .mode-toggle img {
+    filter: invert(1);
 }
 
 /* TITLE SECTION (Everything cover/title page realted) */
@@ -35,6 +87,11 @@ a {
     -o-transition: opacity 1s ease-in-out;
     transition: opacity 1s ease-in-out;*/
     /*background-attachment: fixed; /* maybe */
+}
+
+.dark-mode .background {
+    background: url("../images/bg-dark.jpg") center center no-repeat;
+    background-size: cover;
 }
 
 .wrapper {
@@ -95,7 +152,7 @@ a {
 }
 
 .button:hover {
-    background-color: #fff;
+    background-color: rgba(255, 255, 255, 0.50);
     color: transparent;
     -webkit-transition: all .5s ease;
     -moz-transition: all .5s ease;
@@ -134,6 +191,11 @@ a {
     padding: 10px 0;
 }
 
+.dark-mode .about {
+    background-color: #192734;
+    color: #e1e1e1;
+}
+
 /* tablet, landscape iPad, lo-res laptops ands desktops */ 
 @media screen and (max-width: 1000px) {
     .main {
@@ -167,6 +229,11 @@ a {
 
 .info p a:hover {
     color: #004f6b;
+    text-decoration: underline;
+}
+
+.dark-mode .info p a:hover {
+    color: #64c4f7;
     text-decoration: underline;
 }
 
@@ -252,6 +319,10 @@ a {
     list-style-type: none;
 }
 
+.dark-mode .project {
+    color: #e1e1e1;
+}
+
 .project:hover span {
     text-decoration: underline;
 }
@@ -270,6 +341,14 @@ a {
     color: #005979;
 }
 
-.name {
+.dark-mode .name {
+    color: #4dacdf;
+}
+
+.name:hover {
     color: #004f6b;
+}
+
+.dark-mode .name:hover {
+    color: #64c4f7;
 }
