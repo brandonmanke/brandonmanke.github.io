@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark-mode">
 <head>
     <title>Brandon Manke</title>
     <meta charset="utf-8">
     <meta name=viewport content="width=device-width, initial-scale=1">
     <link rel="preload" fetchpriority="high" as="image" href="./images/bg-dark.jpg" type="image/jpg">
-    <link rel="preload" as="image" href="./images/bg-photo.jpg" type="image/jpg">
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <script>
@@ -44,11 +44,13 @@
     <meta name="msapplication-TileColor" content="#FFFFFF">
     <meta name="msapplication-TileImage" content="favicon/favicon-144.png">
     <meta name="msapplication-config" content="favicon/browserconfig.xml">
+    <noscript>
+      <style>
+        .city-glow, .city-lights { display: none !important; }
+      </style>
+    </noscript>
 </head>
-<body>
-    <button class="mode-toggle" id="mode-toggle" aria-label="Toggle dark/light mode">
-        <img src="./images/dark-mode.svg" alt="Toggle dark mode" id="mode-icon">
-    </button>
+<body class="dark-mode">
     <div class="background"></div>
     <canvas class="city-glow" id="city-glow" aria-hidden="true"></canvas>
     <canvas class="city-lights" id="city-lights" aria-hidden="true"></canvas>
@@ -129,8 +131,6 @@
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const toggleButton = document.getElementById('mode-toggle');
-            const modeIcon = document.getElementById('mode-icon');
             const html = document.documentElement;
             const body = document.body;
             const backgroundEl = document.querySelector('.background');
@@ -140,6 +140,7 @@
 
             const lightImg = new Image();
             const darkImg = new Image();
+            // Light image retained for graceful fallback if needed
             lightImg.src = './images/bg-photo.jpg';
             darkImg.src = './images/bg-dark.jpg';
 
@@ -166,7 +167,7 @@
                     return;
                 }
                 const rect = backgroundEl.getBoundingClientRect();
-                console.log('[Glow] bg rect', rect);
+                // console.log('[Glow] bg rect', rect);
                 glowCanvas.style.width = rect.width + 'px';
                 glowCanvas.style.height = rect.height + 'px';
                 glowCanvas.width = Math.max(1, Math.floor(rect.width * dpr));
@@ -213,7 +214,7 @@
                         }
                     }
                     offCtx.putImageData(data, 0, 0);
-                    console.log('[Glow] contributing pixels (low-res):', count);
+                    // console.log('[Glow] contributing pixels (low-res):', count);
                 } catch (e) {
                     // If getImageData fails (tainted), hide overlay
                     glowCanvas.style.opacity = '0';
@@ -239,7 +240,7 @@
                 ctx.restore();
 
                 glowCanvas.style.opacity = '1';
-                console.log('[Glow] drawn', {canvasW: glowCanvas.width, canvasH: glowCanvas.height});
+                // console.log('[Glow] drawn', {canvasW: glowCanvas.width, canvasH: glowCanvas.height});
             }
 
             // Animated distant tower lights
@@ -488,79 +489,7 @@
                 lightsCanvas.style.opacity = '1';
             }
 
-            function getPseudo(el, pseudo) {
-                return window.getComputedStyle(el, pseudo);
-            }
-
-            function getBodyBgColor() {
-                return window.getComputedStyle(document.body).backgroundColor;
-            }
-
-            // Initialize toggle state and icon
-            const isDark = html.classList.contains('dark-mode') || body.classList.contains('dark-mode');
-            // Keep body in sync with root for CSS selectors that reference body.dark-mode
-            if (isDark) body.classList.add('dark-mode'); else body.classList.remove('dark-mode');
-            modeIcon.src = isDark ? './images/light-mode.svg' : './images/dark-mode.svg';
-            modeIcon.alt = isDark ? 'Toggle light mode' : 'Toggle dark mode';
-            toggleButton.setAttribute('aria-pressed', String(isDark));
-
-            // Add click event listener to toggle button
-            toggleButton.addEventListener('click', function() {
-                const before = {
-                    mode: body.classList.contains('dark-mode') ? 'dark' : 'light',
-                    bodyBg: getBodyBgColor(),
-                    bgBefore: {
-                        image: getPseudo(backgroundEl, '::before').backgroundImage,
-                        opacity: getPseudo(backgroundEl, '::before').opacity,
-                    },
-                    bgAfter: {
-                        image: getPseudo(backgroundEl, '::after').backgroundImage,
-                        opacity: getPseudo(backgroundEl, '::after').opacity,
-                    }
-                };
-                console.group('[Mode Toggle]');
-                console.log('Before:', before);
-
-                // Toggle dark mode classes
-                html.classList.toggle('dark-mode');
-                body.classList.toggle('dark-mode');
-                try {
-                    localStorage.setItem('theme', body.classList.contains('dark-mode') ? 'dark' : 'light');
-                    html.style.colorScheme = body.classList.contains('dark-mode') ? 'dark' : 'light';
-                } catch (e) {}
-
-                // Update button icon based on current mode
-                const isDarkMode = body.classList.contains('dark-mode');
-                if (isDarkMode) {
-                    modeIcon.src = './images/light-mode.svg';
-                    modeIcon.alt = 'Toggle light mode';
-                } else {
-                    modeIcon.src = './images/dark-mode.svg';
-                    modeIcon.alt = 'Toggle dark mode';
-                }
-                toggleButton.setAttribute('aria-pressed', String(isDarkMode));
-
-                // Log after styles in the next paint frame (to validate what actually changed)
-                requestAnimationFrame(() => {
-                    requestAnimationFrame(() => {
-                        renderCityGlow();
-                        const after = {
-                            mode: body.classList.contains('dark-mode') ? 'dark' : 'light',
-                            bodyBg: getBodyBgColor(),
-                            bgBefore: {
-                                image: getPseudo(backgroundEl, '::before').backgroundImage,
-                                opacity: getPseudo(backgroundEl, '::before').opacity,
-                            },
-                            bgAfter: {
-                                image: getPseudo(backgroundEl, '::after').backgroundImage,
-                                opacity: getPseudo(backgroundEl, '::after').opacity,
-                            }
-                        };
-                        console.log('After:', after);
-                        console.groupEnd();
-                    });
-                });
-            });
+            // Light mode disabled; theme locked to dark via classes on html/body
 
             // Initial render after images load
             function readyThenRender() {
@@ -583,8 +512,7 @@
 
             readyThenRender();
             setupLights();
-            // TEMP: visual overlay to verify z-index/coverage
-            console.log('[Glow] canvas z-index', getComputedStyle(glowCanvas).zIndex);
+            // console.log('[Glow] canvas z-index', getComputedStyle(glowCanvas).zIndex);
         });
     </script>
     <script>
