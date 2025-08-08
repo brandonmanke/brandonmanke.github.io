@@ -354,6 +354,28 @@ a {
     text-decoration: underline;
 }
 
+/* About section project list */
+.about .info ul {
+    width: 90%;
+    margin: 8px auto 0;
+    padding-left: 1.25rem; /* keep bullets but align nicely */
+    margin-left: 38px;
+}
+
+.about .info ul li + li {
+    margin-top: 4px; /* very small vertical spacing */
+}
+
+.about .info ul a:hover {
+    color: #004f6b;
+    text-decoration: underline;
+}
+
+.dark-mode .about .info ul a:hover {
+    color: #64c4f7;
+    text-decoration: underline;
+}
+
 .contact {
     width: 100%;
 }
