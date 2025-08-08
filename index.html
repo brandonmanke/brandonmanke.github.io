@@ -50,6 +50,8 @@
         <img src="./images/dark-mode.svg" alt="Toggle dark mode" id="mode-icon">
     </button>
     <div class="background"></div>
+    <canvas class="city-glow" id="city-glow" aria-hidden="true"></canvas>
+    <canvas class="city-lights" id="city-lights" aria-hidden="true"></canvas>
     <div class="wrapper"></div>
     <div class="title">
         <h1>Brandon Manke</h1>
@@ -132,6 +134,292 @@
             const html = document.documentElement;
             const body = document.body;
             const backgroundEl = document.querySelector('.background');
+            const glowCanvas = document.getElementById('city-glow');
+            const lightsCanvas = document.getElementById('city-lights');
+            const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+
+            const lightImg = new Image();
+            const darkImg = new Image();
+            lightImg.src = './images/bg-photo.jpg';
+            darkImg.src = './images/bg-dark.jpg';
+
+            function drawCover(ctx, img, width, height, align) {
+                const iw = img.naturalWidth || img.width;
+                const ih = img.naturalHeight || img.height;
+                if (!iw || !ih) return;
+                const scale = Math.max(width / iw, height / ih);
+                const sw = iw * scale;
+                const sh = ih * scale;
+                const dx = Math.floor((width - sw) / 2);
+                let dy;
+                if (align === 'bottom') {
+                    dy = Math.floor(height - sh);
+                } else {
+                    dy = Math.floor((height - sh) / 2);
+                }
+                ctx.drawImage(img, dx, dy, sw, sh);
+            }
+
+            function renderCityGlow() {
+                if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                    glowCanvas.style.opacity = '0';
+                    return;
+                }
+                const rect = backgroundEl.getBoundingClientRect();
+                console.log('[Glow] bg rect', rect);
+                glowCanvas.style.width = rect.width + 'px';
+                glowCanvas.style.height = rect.height + 'px';
+                glowCanvas.width = Math.max(1, Math.floor(rect.width * dpr));
+                glowCanvas.height = Math.max(1, Math.floor(rect.height * dpr));
+                const ctx = glowCanvas.getContext('2d');
+                if (!ctx) return;
+
+                // Offscreen low-res buffers
+                const lowW = Math.min(600, Math.floor(glowCanvas.width / 2));
+                const scaleRatio = lowW / glowCanvas.width;
+                const lowH = Math.max(1, Math.floor(glowCanvas.height * scaleRatio));
+                const off = document.createElement('canvas');
+                off.width = lowW; off.height = lowH;
+                const offCtx = off.getContext('2d');
+                if (!offCtx) return;
+
+                const isDark = body.classList.contains('dark-mode');
+                const img = isDark ? darkImg : lightImg;
+                const align = isDark ? 'center' : 'bottom';
+
+                // Draw image into offscreen with cover logic
+                offCtx.clearRect(0, 0, lowW, lowH);
+                drawCover(offCtx, img, lowW, lowH, align);
+
+                try {
+                    const data = offCtx.getImageData(0, 0, lowW, lowH);
+                    const d = data.data;
+                    // Threshold and tint
+                    const warm = isDark ? [255, 180, 90] : [255, 200, 120];
+                    const threshold = isDark ? 125 : 155; // luminance threshold (increased glow)
+                    let count = 0;
+                    for (let i = 0; i < d.length; i += 4) {
+                        const r = d[i], g = d[i+1], b = d[i+2];
+                        const lum = 0.2126*r + 0.7152*g + 0.0722*b;
+                        if (lum > threshold) {
+                            const strength = (lum - threshold) / (255 - threshold);
+                            d[i] = warm[0];
+                            d[i+1] = warm[1];
+                            d[i+2] = warm[2];
+                            d[i+3] = Math.max(d[i+3], Math.floor(70 + 170 * strength));
+                            count++;
+                        } else {
+                            d[i+3] = 0;
+                        }
+                    }
+                    offCtx.putImageData(data, 0, 0);
+                    console.log('[Glow] contributing pixels (low-res):', count);
+                } catch (e) {
+                    // If getImageData fails (tainted), hide overlay
+                    glowCanvas.style.opacity = '0';
+                    return;
+                }
+
+                // Blur and upscale
+                const blur = document.createElement('canvas');
+                blur.width = lowW; blur.height = lowH;
+                const blurCtx = blur.getContext('2d');
+                if (!blurCtx) return;
+                // Prefer canvas filter; fallback to shadow blur via CSS after draw
+                const blurRadius = isDark ? 10 : 8;
+                try { blurCtx.filter = `blur(${blurRadius}px)`; } catch(_) {}
+                blurCtx.drawImage(off, 0, 0);
+
+                // Composite to main canvas
+                ctx.clearRect(0, 0, glowCanvas.width, glowCanvas.height);
+                ctx.save();
+                ctx.globalCompositeOperation = 'screen';
+                ctx.globalAlpha = isDark ? 0.55 : 0.38;
+                drawCover(ctx, blur, glowCanvas.width, glowCanvas.height, align);
+                ctx.restore();
+
+                glowCanvas.style.opacity = '1';
+                console.log('[Glow] drawn', {canvasW: glowCanvas.width, canvasH: glowCanvas.height});
+            }
+
+            // Animated distant tower lights
+            let lights = [];
+            let lightsAnim = 0;
+            function setupLights() {
+                if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                    cancelAnimationFrame(lightsAnim);
+                    const rect = backgroundEl.getBoundingClientRect();
+                    lightsCanvas.style.width = rect.width + 'px';
+                    lightsCanvas.style.height = rect.height + 'px';
+                    lightsCanvas.width = Math.max(1, Math.floor(rect.width * dpr));
+                    lightsCanvas.height = Math.max(1, Math.floor(rect.height * dpr));
+                    const ctx = lightsCanvas.getContext('2d');
+                    if (!ctx) return;
+                    ctx.setTransform(dpr,0,0,dpr,0,0);
+                    drawLightsFrame(ctx, rect, 0, true);
+                    return;
+                }
+
+                cancelAnimationFrame(lightsAnim);
+                const rect = backgroundEl.getBoundingClientRect();
+                lightsCanvas.style.width = rect.width + 'px';
+                lightsCanvas.style.height = rect.height + 'px';
+                lightsCanvas.width = Math.max(1, Math.floor(rect.width * dpr));
+                lightsCanvas.height = Math.max(1, Math.floor(rect.height * dpr));
+                // Smaller lights, tighter vertical band near the skyline horizon
+                const mainCount = Math.max(42, Math.floor(rect.width / 32));
+                const microCount = Math.max(28, Math.floor(rect.width / 44));
+                const horizon = Math.floor(rect.height * 0.58); // a bit higher
+                const bandUp = Math.max(6, Math.floor(rect.height * 0.18));
+                const bandDown = Math.max(3, Math.floor(rect.height * 0.08));
+                const isDark = body.classList.contains('dark-mode');
+                const colors = isDark ? [
+                    {r:255,g:64,b:64},
+                    {r:255,g:210,b:110}
+                ] : [
+                    {r:230,g:80,b:80},
+                    {r:255,g:200,b:120}
+                ];
+                const stepX = rect.width / mainCount;
+                const mainLights = new Array(mainCount).fill(0).map((_, i) => {
+                    const baseX = (i + 0.5) * stepX;
+                    const xJitter = (Math.random() - 0.5) * stepX * 0.25;
+                    const x = baseX + xJitter;
+                    // Wider band biased upward (towards skyline)
+                    const y = horizon - Math.random() * bandUp + Math.random() * bandDown * 0.35;
+                    const color = colors[Math.random() < 0.65 ? 0 : 1];
+                    const typeRand = Math.random();
+                    if (typeRand < 0.18) { // blinkers
+                        return {
+                            x, y, color,
+                            type: 'blink',
+                            radius: 0.45 + Math.random() * 0.55,
+                            phase: Math.random(),
+                            speed: 0.18 + Math.random() * 0.22,
+                            duty: 0.08 + Math.random() * 0.12,
+                            base: 0.06 + Math.random() * 0.08,
+                            amp: 1.0
+                        };
+                    } else if (typeRand < 0.48) { // breathe (slow)
+                        return {
+                            x, y, color,
+                            type: 'breathe',
+                            radius: 0.45 + Math.random() * 0.6,
+                            phase: Math.random() * Math.PI * 2,
+                            speed: 0.12 + Math.random() * 0.18,
+                            base: 0.10 + Math.random() * 0.14,
+                            amp: 0.18 + Math.random() * 0.22
+                        };
+                    } else if (typeRand < 0.63) { // steady (tiny flicker)
+                        return {
+                            x, y, color,
+                            type: 'steady',
+                            radius: 0.45 + Math.random() * 0.55,
+                            phase: Math.random() * Math.PI * 2,
+                            speed: 0.1 + Math.random() * 0.2,
+                            base: 0.14 + Math.random() * 0.16,
+                            amp: 0.04 + Math.random() * 0.06
+                        };
+                    } else if (typeRand < 0.78) { // pulse + breathe combined
+                        return {
+                            x, y, color,
+                            type: 'pulsebreath',
+                            radius: 0.5 + Math.random() * 0.6,
+                            phase: Math.random() * Math.PI * 2,
+                            speed: 0.4 + Math.random() * 0.6,
+                            base: 0.16 + Math.random() * 0.18,
+                            amp: 0.22 + Math.random() * 0.3,
+                            breatheSpeed: 0.08 + Math.random() * 0.12
+                        };
+                    }
+                    // pulse (default)
+                    return {
+                        x, y, color,
+                        type: 'pulse',
+                        radius: 0.5 + Math.random() * 0.6,
+                        phase: Math.random() * Math.PI * 2,
+                        speed: 0.5 + Math.random() * 0.8,
+                        base: 0.18 + Math.random() * 0.22,
+                        amp: 0.28 + Math.random() * 0.35
+                    };
+                });
+
+                // micro lights: very small, subtle breathing or steady
+                const micro = new Array(microCount).fill(0).map(() => {
+                    const x = Math.random() * rect.width;
+                    const y = horizon - Math.random() * bandUp * 0.8 + Math.random() * bandDown * 0.25;
+                    const color = colors[Math.random() < 0.8 ? 0 : 1];
+                    const breathe = Math.random() < 0.7;
+                    return breathe ? {
+                        x, y, color,
+                        type: 'breathe',
+                        radius: 0.25 + Math.random() * 0.35,
+                        phase: Math.random() * Math.PI * 2,
+                        speed: 0.08 + Math.random() * 0.12,
+                        base: 0.05 + Math.random() * 0.08,
+                        amp: 0.12 + Math.random() * 0.16
+                    } : {
+                        x, y, color,
+                        type: 'pulse',
+                        radius: 0.25 + Math.random() * 0.35,
+                        phase: Math.random() * Math.PI * 2,
+                        speed: 0.35 + Math.random() * 0.4,
+                        base: 0.06 + Math.random() * 0.1,
+                        amp: 0.16 + Math.random() * 0.2
+                    };
+                });
+
+                lights = mainLights.concat(micro);
+
+                const ctx = lightsCanvas.getContext('2d');
+                if (!ctx) return;
+                ctx.setTransform(dpr,0,0,dpr,0,0);
+
+                let start = performance.now();
+                function tick(now) {
+                    const t = (now - start) / 1000;
+                    drawLightsFrame(ctx, rect, t, false);
+                    lightsAnim = requestAnimationFrame(tick);
+                }
+                lightsAnim = requestAnimationFrame(tick);
+            }
+
+            function drawLightsFrame(ctx, rect, t, staticOnly) {
+                ctx.clearRect(0, 0, rect.width, rect.height);
+                ctx.globalCompositeOperation = 'lighter';
+                const isDark = body.classList.contains('dark-mode');
+                const scale = isDark ? 1.4 : 1.2; // keep small
+                for (let i=0; i<lights.length; i++) {
+                    const L = lights[i];
+                    let pulse;
+                    if (staticOnly) {
+                        pulse = L.base;
+                    } else if (L.type === 'blink') {
+                        const m = (L.phase + t * L.speed) % 1;
+                        pulse = m < L.duty ? (L.base + L.amp) : (L.base * 0.08);
+                    } else if (L.type === 'breathe') {
+                        pulse = L.base + L.amp * 0.5 * (1 + Math.sin(L.phase + t * L.speed));
+                    } else if (L.type === 'steady') {
+                        pulse = L.base + L.amp * 0.2 * Math.sin(L.phase + t * L.speed * 3.0);
+                    } else if (L.type === 'pulsebreath') {
+                        const envelope = 0.7 + 0.3 * (1 + Math.sin(L.phase + t * (L.breatheSpeed || 0.1))) / 2;
+                        pulse = L.base + (L.amp * envelope) * 0.5 * (1 + Math.sin(L.phase + t * L.speed * 2.0));
+                    } else { // pulse
+                        pulse = L.base + L.amp * 0.5 * (1 + Math.sin(L.phase + t * L.speed * 2.0));
+                    }
+                    const outer = L.radius * scale * 2.2;
+                    const grad = ctx.createRadialGradient(L.x, L.y, 0, L.x, L.y, outer);
+                    const rgba = (a) => `rgba(${L.color.r},${L.color.g},${L.color.b},${(pulse*a).toFixed(3)})`;
+                    grad.addColorStop(0.0, rgba(1.0));
+                    grad.addColorStop(0.25, rgba(0.35));
+                    grad.addColorStop(1.0, rgba(0.0));
+                    ctx.fillStyle = grad;
+                    ctx.beginPath();
+                    ctx.arc(L.x, L.y, outer, 0, Math.PI*2);
+                    ctx.fill();
+                }
+                lightsCanvas.style.opacity = '1';
+            }
 
             function getPseudo(el, pseudo) {
                 return window.getComputedStyle(el, pseudo);
@@ -188,6 +476,7 @@
                 // Log after styles in the next paint frame (to validate what actually changed)
                 requestAnimationFrame(() => {
                     requestAnimationFrame(() => {
+                        renderCityGlow();
                         const after = {
                             mode: body.classList.contains('dark-mode') ? 'dark' : 'light',
                             bodyBg: getBodyBgColor(),
@@ -205,6 +494,30 @@
                     });
                 });
             });
+
+            // Initial render after images load
+            function readyThenRender() {
+                if ((lightImg.complete || lightImg.naturalWidth) && (darkImg.complete || darkImg.naturalWidth)) {
+                    renderCityGlow();
+                } else {
+                    const onload = () => renderCityGlow();
+                    lightImg.onload = onload;
+                    darkImg.onload = onload;
+                }
+            }
+
+            window.addEventListener('resize', () => {
+                // debounce resize
+                clearTimeout(window.__glowRaf);
+                window.__glowRaf = setTimeout(renderCityGlow, 100);
+                clearTimeout(window.__lightsRaf);
+                window.__lightsRaf = setTimeout(setupLights, 120);
+            });
+
+            readyThenRender();
+            setupLights();
+            // TEMP: visual overlay to verify z-index/coverage
+            console.log('[Glow] canvas z-index', getComputedStyle(glowCanvas).zIndex);
         });
     </script>
     <script>
