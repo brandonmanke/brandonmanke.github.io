@@ -114,7 +114,7 @@ a {
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
-    transition: opacity 350ms ease;
+    transition: opacity 320ms ease;
     will-change: opacity;
 }
 
