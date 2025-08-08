@@ -106,6 +106,34 @@ a {
     /*background-attachment: fixed; /* maybe */
 }
 
+/* Canvas glow overlay sits above hero background */
+.city-glow {
+    position: absolute;
+    z-index: 2;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: var(--hero-height);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 320ms ease;
+}
+
+.city-lights {
+    position: absolute;
+    z-index: 3;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: var(--hero-height);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 320ms ease;
+    mix-blend-mode: screen;
+}
+
+/* glow overlay removed after debugging */
+
 .dark-mode .background {
     background: url("../images/bg-dark.jpg") center center no-repeat;
     background-size: cover;
@@ -199,6 +227,8 @@ a {
     -moz-transition: all .5s ease;
     -o-transition: all .5s ease;
     transition: all .5s ease;
+    position: relative;
+    overflow: hidden;
 }
 
 .button:hover {
@@ -208,6 +238,27 @@ a {
     -moz-transition: all .5s ease;
     -o-transition: all .5s ease;
     transition: all .5s ease;
+}
+
+/* Subtle shimmering sheen across the button */
+.button::after {
+    content: "";
+    position: absolute;
+    top: -20%;
+    bottom: -20%;
+    left: -150%;
+    width: 50%;
+    background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.55) 50%, transparent 100%);
+    transform: skewX(-20deg);
+    pointer-events: none;
+    animation: buttonSheen 9s ease-in-out infinite;
+}
+
+@keyframes buttonSheen {
+    0%, 12% { left: -150%; opacity: 0; }
+    13% { opacity: .25; }
+    28% { left: 150%; opacity: .25; }
+    29%, 100% { left: 150%; opacity: 0; }
 }
 
 .button span {
