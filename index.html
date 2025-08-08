@@ -244,6 +244,7 @@
 
             // Animated distant tower lights
             let lights = [];
+            let planes = [];
             let lightsAnim = 0;
             function setupLights() {
                 if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -375,6 +376,29 @@
                 if (!ctx) return;
                 ctx.setTransform(dpr,0,0,dpr,0,0);
 
+                // Initialize a single distant plane (higher in the sky)
+                const planesCount = 1;
+                const skyTop = Math.floor(rect.height * 0.18);
+                const skyBottom = Math.floor(rect.height * 0.32);
+                const buffer = 60;
+                planes = new Array(planesCount).fill(0).map(() => {
+                    const dir = Math.random() < 0.5 ? 1 : -1;
+                    const startX = dir > 0 ? -buffer - Math.random()*80 : rect.width + buffer + Math.random()*80;
+                    const y = skyTop + Math.random() * (skyBottom - skyTop);
+                    return {
+                        dir,
+                        startX,
+                        y,
+                        vx: dir * (10 + Math.random() * 6),
+                        blinkPhase: Math.random(),
+                        blinkSpeed: 0.7 + Math.random() * 0.6,
+                        radius: 0.28 + Math.random() * 0.24,
+                        trail: 10 + Math.random() * 16,
+                        red: {r:255,g:90,b:90},
+                        white: {r:255,g:255,b:255}
+                    };
+                });
+
                 let start = performance.now();
                 function tick(now) {
                     const t = (now - start) / 1000;
@@ -417,6 +441,49 @@
                     ctx.beginPath();
                     ctx.arc(L.x, L.y, outer, 0, Math.PI*2);
                     ctx.fill();
+                }
+                // Draw distant planes
+                const buffer = 60;
+                for (let i=0; i<planes.length; i++) {
+                    const P = planes[i];
+                    const xRaw = P.startX + (staticOnly ? 0 : P.vx * t);
+                    // wrap around
+                    let x = ((xRaw + buffer) % (rect.width + 2*buffer));
+                    if (x < 0) x += rect.width + 2*buffer;
+                    x -= buffer;
+                    const y = P.y + (staticOnly ? 0 : Math.sin((P.blinkPhase + t * 0.2) * 2*Math.PI) * 0.4);
+                    const m = (P.blinkPhase + t * P.blinkSpeed) % 1;
+                    const on = m < 0.15; // short duty
+                    const color = on ? P.white : P.red;
+                    const baseAlpha = on ? 0.85 : 0.35;
+                    const r = P.radius * (on ? 1.1 : 0.9);
+                    const outer = r * 3.0;
+                    const grad = ctx.createRadialGradient(x, y, 0, x, y, outer);
+                    const rgba = (a) => `rgba(${color.r},${color.g},${color.b},${(baseAlpha*a).toFixed(3)})`;
+                    grad.addColorStop(0.0, rgba(1.0));
+                    grad.addColorStop(0.35, rgba(0.4));
+                    grad.addColorStop(1.0, rgba(0.0));
+                    ctx.fillStyle = grad;
+                    ctx.beginPath();
+                    ctx.arc(x, y, outer, 0, Math.PI*2);
+                    ctx.fill();
+
+                    // tiny trail
+                    if (!staticOnly) {
+                        const steps = 3;
+                        for (let s=1; s<=steps; s++) {
+                            const tx = x - P.dir * (P.trail * (s/steps));
+                            const ty = y;
+                            const tgrad = ctx.createRadialGradient(tx, ty, 0, tx, ty, outer*0.8*(1 - s/steps));
+                            const trgba = `rgba(${color.r},${color.g},${color.b},${(baseAlpha*0.25*(1 - s/steps)).toFixed(3)})`;
+                            tgrad.addColorStop(0.0, trgba);
+                            tgrad.addColorStop(1.0, 'rgba(0,0,0,0)');
+                            ctx.fillStyle = tgrad;
+                            ctx.beginPath();
+                            ctx.arc(tx, ty, outer*0.8*(1 - s/steps), 0, Math.PI*2);
+                            ctx.fill();
+                        }
+                    }
                 }
                 lightsCanvas.style.opacity = '1';
             }
