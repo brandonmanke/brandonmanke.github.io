@@ -3,6 +3,15 @@ html {
     margin: 0;
 }
 
+:root {
+    /* Adjustable hero height */
+    --hero-height: 48vh;
+}
+
+@media screen and (max-width: 600px) {
+    :root { --hero-height: 42vh; }
+}
+
 body {
     height: 100%;
     font-family: 'Open Sans', sans-serif;
@@ -84,7 +93,7 @@ a {
     position: absolute;
     z-index: -1;
     min-width: 100%;
-    min-height: 40%;
+    height: var(--hero-height);
     left: 0;
     top: 0;
     background: url("../images/bg-photo.jpg") center bottom no-repeat;
@@ -138,7 +147,7 @@ a {
 .wrapper {
     position: relative;
     min-width: 100%;
-    min-height: 40%;
+    min-height: var(--hero-height);
     left: 0;
     top: 0;
 }
@@ -148,7 +157,7 @@ a {
     display: inline-block;
     width: 100%;
     position: absolute;
-    top: 10%;
+    top: calc(var(--hero-height) * 0.22);
     bottom: 0;
     left: 0;
     right: 0;
@@ -227,6 +236,8 @@ a {
     border-radius: 12px;
     border: 1px solid rgba(0, 0, 0, 0.08);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    position: relative;
+    overflow: visible;
     /*-webkit-transition: opacity 750ms linear;
     -transition: opacity 750ms linear;
     -o-transition: opacity 750ms linear;
@@ -240,6 +251,30 @@ a {
     background-color: #192734;
     color: #e1e1e1;
     border-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Subtle ambient glow behind the about card */
+.about::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset: -20px -16px;
+    border-radius: 18px;
+    filter: blur(28px);
+    opacity: 0.08;
+    transform: scale(0.985);
+    background: radial-gradient(60% 80% at 50% 50%, rgba(0, 89, 121, 0.35), transparent 70%);
+    animation: aboutGlow 16s ease-in-out infinite alternate;
+    pointer-events: none;
+}
+
+.dark-mode .about::before {
+    background: radial-gradient(60% 80% at 50% 50%, rgba(77, 172, 223, 0.28), transparent 70%);
+}
+
+@keyframes aboutGlow {
+    0% { transform: scale(0.985); opacity: 0.06; }
+    100% { transform: scale(1.02); opacity: 0.12; }
 }
 
 /* tablet, landscape iPad, lo-res laptops ands desktops */ 
