@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <meta name=viewport content="width=device-width, initial-scale=1">
     <link rel="preload" fetchpriority="high" as="image" href="./images/bg-dark.jpg" type="image/jpg">
+    <link rel="preload" as="image" href="./images/bg-photo.jpg" type="image/jpg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" type="text/css" href="./css/normalize.css">
@@ -30,27 +31,6 @@
     <meta name="msapplication-TileColor" content="#FFFFFF">
     <meta name="msapplication-TileImage" content="favicon/favicon-144.png">
     <meta name="msapplication-config" content="favicon/browserconfig.xml">
-    <style>
-      body {
-        height: 100%;
-        font-family: 'Open Sans', sans-serif;
-        font-weight: 300;
-      }
-      body.dark-mode {
-        background-color: #15202b;
-        color: #e1e1e1;
-      }
-      .dark-mode .background {
-        position: absolute;
-        z-index: -1;
-        min-width: 100%;
-        min-height: 40%;
-        left: 0;
-        top: 0;
-        background: url("./images/bg-dark.jpg") center center no-repeat;
-        background-size: cover;
-      }
-    </style>
 </head>
 <body class="dark-mode">
     <button class="mode-toggle" id="mode-toggle" aria-label="Toggle dark/light mode">
@@ -187,13 +167,40 @@
             const modeIcon = document.getElementById('mode-icon');
             const html = document.documentElement;
             const body = document.body;
-            
+            const backgroundEl = document.querySelector('.background');
+
+            function getPseudo(el, pseudo) {
+                return window.getComputedStyle(el, pseudo);
+            }
+
+            function getBodyBgColor() {
+                return window.getComputedStyle(document.body).backgroundColor;
+            }
+
+            // Enable transitions after initial render to avoid first-paint crossfade
+            html.classList.add('js-ready');
+
             // Add click event listener to toggle button
             toggleButton.addEventListener('click', function() {
+                const before = {
+                    mode: body.classList.contains('dark-mode') ? 'dark' : 'light',
+                    bodyBg: getBodyBgColor(),
+                    bgBefore: {
+                        image: getPseudo(backgroundEl, '::before').backgroundImage,
+                        opacity: getPseudo(backgroundEl, '::before').opacity,
+                    },
+                    bgAfter: {
+                        image: getPseudo(backgroundEl, '::after').backgroundImage,
+                        opacity: getPseudo(backgroundEl, '::after').opacity,
+                    }
+                };
+                console.group('[Mode Toggle]');
+                console.log('Before:', before);
+
                 // Toggle dark mode classes
                 html.classList.toggle('dark-mode');
                 body.classList.toggle('dark-mode');
-                
+
                 // Update button icon based on current mode
                 const isDarkMode = body.classList.contains('dark-mode');
                 if (isDarkMode) {
@@ -203,6 +210,26 @@
                     modeIcon.src = './images/dark-mode.svg';
                     modeIcon.alt = 'Toggle dark mode';
                 }
+
+                // Log after styles in the next paint frame (to validate what actually changed)
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        const after = {
+                            mode: body.classList.contains('dark-mode') ? 'dark' : 'light',
+                            bodyBg: getBodyBgColor(),
+                            bgBefore: {
+                                image: getPseudo(backgroundEl, '::before').backgroundImage,
+                                opacity: getPseudo(backgroundEl, '::before').opacity,
+                            },
+                            bgAfter: {
+                                image: getPseudo(backgroundEl, '::after').backgroundImage,
+                                opacity: getPseudo(backgroundEl, '::after').opacity,
+                            }
+                        };
+                        console.log('After:', after);
+                        console.groupEnd();
+                    });
+                });
             });
         });
     </script>
