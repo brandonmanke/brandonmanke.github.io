@@ -45,9 +45,9 @@
     <meta name="msapplication-TileImage" content="favicon/favicon-144.png">
     <meta name="msapplication-config" content="favicon/browserconfig.xml">
     <noscript>
-      <style>
+    <style>
         .city-glow, .city-lights { display: none !important; }
-      </style>
+    </style>
     </noscript>
 </head>
 <body class="dark-mode">
@@ -137,6 +137,21 @@
             const glowCanvas = document.getElementById('city-glow');
             const lightsCanvas = document.getElementById('city-lights');
             const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+
+            // CONFIG: Traffic ribbon near GitHub button
+            // - centerX/centerY: normalized position within hero (0..1)
+            // - angleDeg: rotation in degrees (negative = counter-clockwise)
+            // - halfLen: half of total length (normalized)
+            // - bandWidth: ribbon thickness (normalized)
+            const TRAFFIC_RIBBON = {
+                centerX: 0.44,
+                centerY: 0.64,
+                angleDeg: -63.5,
+                halfLen: 0.072,
+                bandWidth: 0.010,
+            };
+            // To adjust yourself, uncomment and set a new angle (example below):
+            // TRAFFIC_RIBBON.angleDeg = -40; // rotate more CCW
 
             const lightImg = new Image();
             const darkImg = new Image();
@@ -246,6 +261,10 @@
             // Animated distant tower lights
             let lights = [];
             let planes = [];
+            let twinkles = [];
+            let vehicles = [];
+            let debugTrafficBand = null;
+            const DEBUG_TRAFFIC = false;
             let lightsAnim = 0;
             function setupLights() {
                 if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -407,6 +426,61 @@
                     lightsAnim = requestAnimationFrame(tick);
                 }
                 lightsAnim = requestAnimationFrame(tick);
+
+                // Build twinkling band near the GitHub button: diagonal down-left ribbon
+                // Define a base line in normalized coords; adjust if needed
+                // Define band from its center, length and angle (easy to tweak). See TRAFFIC_RIBBON above.
+                const center = { x: TRAFFIC_RIBBON.centerX, y: TRAFFIC_RIBBON.centerY };
+                const halfLen = TRAFFIC_RIBBON.halfLen; // half the total length (normalized)
+                const angleDeg = TRAFFIC_RIBBON.angleDeg;  // rotate CCW from horizontal
+                const angle = angleDeg * Math.PI / 180;
+                const vx = Math.cos(angle) * halfLen;
+                const vy = Math.sin(angle) * halfLen;
+                const lineStart = { x: center.x - vx, y: center.y - vy };
+                const lineEnd   = { x: center.x + vx, y: center.y + vy };
+                const bandWidth = TRAFFIC_RIBBON.bandWidth; // normalized width
+                const countTwinkles = Math.max(60, Math.floor(rect.width / 12));
+                const warm = {r:255,g:205,b:120};
+                twinkles = new Array(countTwinkles).fill(0).map((_, i) => {
+                    const t = (i + Math.random()*0.5) / countTwinkles;
+                    const x0 = lineStart.x + (lineEnd.x - lineStart.x) * t;
+                    const y0 = lineStart.y + (lineEnd.y - lineStart.y) * t;
+                    // Perpendicular jitter
+                    const dx = (lineEnd.y - lineStart.y);
+                    const dy = -(lineEnd.x - lineStart.x);
+                    const len = Math.hypot(dx, dy) || 1;
+                    const nx = dx / len, ny = dy / len;
+                    const jitter = (Math.random() - 0.5) * bandWidth;
+                    return {
+                        x0, y0, nx, ny,
+                        jitter,
+                        color: warm,
+                        base: 0.06 + Math.random()*0.08,
+                        amp: 0.07 + Math.random()*0.08,
+                        phase: Math.random()*Math.PI*2,
+                        speed: 0.15 + Math.random()*0.15,
+                        radius: 0.18 + Math.random()*0.22
+                    };
+                });
+                // Save band geometry and initialize moving vehicles
+                const dx = (lineEnd.y - lineStart.y);
+                const dy = -(lineEnd.x - lineStart.x);
+                const lenN = Math.hypot(dx, dy) || 1; // perpendicular unit length
+                const nx = dx / lenN, ny = dy / lenN;
+                const tx = Math.cos(angle);
+                const ty = Math.sin(angle);
+                const length = Math.hypot(lineEnd.x - lineStart.x, lineEnd.y - lineStart.y) || (halfLen*2);
+                debugTrafficBand = { lineStart, lineEnd, nx, ny, tx, ty, bandWidth, length };
+
+                const cars = 12;
+                vehicles = new Array(cars).fill(0).map((_, i) => ({
+                    s0: (i / cars) + Math.random()*0.05,
+                    speed: 0.015 + Math.random()*0.015, // normalized per second
+                    jitter: (Math.random()-0.5) * bandWidth * 0.6,
+                    radius: 0.22 + Math.random()*0.16,
+                    base: 0.18 + Math.random()*0.12,
+                    color: {r:255,g:205,b:120}
+                }));
             }
 
             function drawLightsFrame(ctx, rect, t, staticOnly) {
@@ -483,6 +557,93 @@
                             ctx.beginPath();
                             ctx.arc(tx, ty, outer*0.8*(1 - s/steps), 0, Math.PI*2);
                             ctx.fill();
+                        }
+                    }
+                }
+                // Draw slow twinkling band (gridlocked traffic feel) near GitHub
+                const alphaScale = isDark ? 1.0 : 0.85;
+                for (let i=0;i<twinkles.length;i++) {
+                    const L = twinkles[i];
+                    const drift = staticOnly ? 0 : 0.0025 * Math.sin((L.phase + t * L.speed) * 0.8);
+                    const x = (L.x0 + L.nx * (L.jitter + drift)) * rect.width;
+                    const y = (L.y0 + L.ny * (L.jitter + drift)) * rect.height;
+                    const pulse = staticOnly ? L.base : L.base + L.amp * 0.5 * (1 + Math.sin(L.phase + t * L.speed));
+                    const outer = L.radius * 3.0;
+                    const g = ctx.createRadialGradient(x, y, 0, x, y, outer);
+                    g.addColorStop(0, `rgba(${L.color.r},${L.color.g},${L.color.b},${(pulse*alphaScale).toFixed(3)})`);
+                    g.addColorStop(1, 'rgba(0,0,0,0)');
+                    ctx.fillStyle = g;
+                    ctx.beginPath();
+                    ctx.arc(x, y, outer, 0, Math.PI*2);
+                    ctx.fill();
+                }
+                // Debug: visualize band area and center line
+                if (DEBUG_TRAFFIC && debugTrafficBand) {
+                    const { lineStart, lineEnd, nx, ny, bandWidth } = debugTrafficBand;
+                    const sx = lineStart.x * rect.width;
+                    const sy = lineStart.y * rect.height;
+                    const ex = lineEnd.x * rect.width;
+                    const ey = lineEnd.y * rect.height;
+                    const ox = nx * bandWidth * rect.width;
+                    const oy = ny * bandWidth * rect.height;
+                    ctx.save();
+                    // Center line
+                    ctx.strokeStyle = 'rgba(0, 200, 255, 0.9)';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(sx, sy);
+                    ctx.lineTo(ex, ey);
+                    ctx.stroke();
+                    // Edges
+                    ctx.strokeStyle = 'rgba(255, 80, 80, 0.9)';
+                    ctx.setLineDash([6, 6]);
+                    ctx.beginPath();
+                    ctx.moveTo(sx + ox, sy + oy);
+                    ctx.lineTo(ex + ox, ey + oy);
+                    ctx.moveTo(sx - ox, sy - oy);
+                    ctx.lineTo(ex - ox, ey - oy);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                    ctx.restore();
+                }
+
+                // Moving car lights along the band path (slow, smooth)
+                if (debugTrafficBand) {
+                    const { lineStart, tx, ty, nx, ny, length } = debugTrafficBand;
+                    const alphaScaleCars = isDark ? 1.0 : 0.85;
+                    for (let i=0;i<vehicles.length;i++) {
+                        const V = vehicles[i];
+                        const s = (V.s0 + (staticOnly ? 0 : t*V.speed)) % 1;
+                        const px = lineStart.x + tx * (s * length) + nx * V.jitter;
+                        const py = lineStart.y + ty * (s * length) + ny * V.jitter;
+                        const x = px * rect.width;
+                        const y = py * rect.height;
+                        const outer = V.radius * 3.0;
+                        const a = V.base * alphaScaleCars;
+                        const grad = ctx.createRadialGradient(x, y, 0, x, y, outer);
+                        grad.addColorStop(0, `rgba(${V.color.r},${V.color.g},${V.color.b},${a})`);
+                        grad.addColorStop(1, 'rgba(0,0,0,0)');
+                        ctx.fillStyle = grad;
+                        ctx.beginPath();
+                        ctx.arc(x, y, outer, 0, Math.PI*2);
+                        ctx.fill();
+
+                        // tiny trailing glow along negative tangent
+                        if (!staticOnly) {
+                            const steps = 2;
+                            for (let s2=1; s2<=steps; s2++) {
+                                const fx = x - tx * rect.width * (s2 * 0.006);
+                                const fy = y - ty * rect.height * (s2 * 0.006);
+                                const o2 = outer * (1 - s2/ (steps+1));
+                                const a2 = a * (0.35 * (1 - s2/(steps+1)));
+                                const g2 = ctx.createRadialGradient(fx, fy, 0, fx, fy, o2);
+                                g2.addColorStop(0, `rgba(${V.color.r},${V.color.g},${V.color.b},${a2})`);
+                                g2.addColorStop(1, 'rgba(0,0,0,0)');
+                                ctx.fillStyle = g2;
+                                ctx.beginPath();
+                                ctx.arc(fx, fy, o2, 0, Math.PI*2);
+                                ctx.fill();
+                            }
                         }
                     }
                 }
