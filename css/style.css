@@ -53,6 +53,11 @@ a {
     padding: 0;
 }
 
+.mode-toggle:focus-visible {
+    outline: 2px solid #4dacdf;
+    outline-offset: 3px;
+}
+
 .mode-toggle:hover {
     transform: scale(1.1);
     box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
@@ -113,14 +118,14 @@ a {
     will-change: opacity;
 }
 
-/* Light image visible by default */
+/* Light image (no gradient overlay) */
 .background::before {
     background-image: url("../images/bg-photo.jpg");
     background-position: center bottom;
     opacity: 1;
 }
 
-/* Dark image hidden by default */
+/* Dark image (hidden by default, no gradient overlay) */
 .background::after {
     background-image: url("../images/bg-dark.jpg");
     opacity: 0;
@@ -219,18 +224,22 @@ a {
     /* ececec vs fff ? */
     opacity: 1;
     transition: background-color 300ms ease, color 300ms ease;
+    border-radius: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
     /*-webkit-transition: opacity 750ms linear;
     -transition: opacity 750ms linear;
     -o-transition: opacity 750ms linear;
     transition: opacity 750ms linear;
     animation: pop-in 750ms cubic-bezier(.65,.05,.36,1) forwards;
     animation-delay: 750ms;*/
-    padding: 10px 0;
+    padding: 16px 0;
 }
 
 .dark-mode .about {
     background-color: #192734;
     color: #e1e1e1;
+    border-color: rgba(255, 255, 255, 0.08);
 }
 
 /* tablet, landscape iPad, lo-res laptops ands desktops */ 
@@ -328,24 +337,16 @@ a {
     width: 100%;
     margin: 0 auto;
     padding-left: 0;
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
+    display: block;
 }
 
-.el {
-    text-align: center;
-    display: block;
-    width: 100%;
-    margin-bottom: 15px;
-}
+/* .el wrapper removed in markup */
 
 .projects ul a {
     display: inline-block;
-    margin: 0 auto;
+    margin: 0 auto 6px auto;
     text-decoration: none;
     outline: 0;
-    height: 30px;
 }
 
 
