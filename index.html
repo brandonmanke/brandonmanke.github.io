@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="dark-mode">
+<html lang="en">
 <head>
     <title>Brandon Manke</title>
     <meta charset="utf-8">
@@ -8,6 +8,19 @@
     <link rel="preload" as="image" href="./images/bg-photo.jpg" type="image/jpg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <script>
+      (function() {
+        try {
+          var stored = localStorage.getItem('theme');
+          var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          var isDark = stored ? stored === 'dark' : prefersDark;
+          var root = document.documentElement;
+          if (isDark) { root.classList.add('dark-mode'); } else { root.classList.remove('dark-mode'); }
+          root.style.colorScheme = isDark ? 'dark' : 'light';
+        } catch (e) {}
+      })();
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="./css/normalize.css">
     <link rel="stylesheet" type="text/css" href="./css/style.css">
     <link rel="author" href="https://github.com/brandonmanke"/>
@@ -32,9 +45,9 @@
     <meta name="msapplication-TileImage" content="favicon/favicon-144.png">
     <meta name="msapplication-config" content="favicon/browserconfig.xml">
 </head>
-<body class="dark-mode">
+<body>
     <button class="mode-toggle" id="mode-toggle" aria-label="Toggle dark/light mode">
-        <img src="./images/light-mode.svg" alt="Toggle light mode" id="mode-icon">
+        <img src="./images/dark-mode.svg" alt="Toggle dark mode" id="mode-icon">
     </button>
     <div class="background"></div>
     <div class="wrapper"></div>
@@ -46,7 +59,7 @@
             <ul class="contact-list">
                 <li>
                     <a href="https://github.com/brandonmanke">
-                        <img id="github"
+                        <img id="github" loading="lazy" decoding="async"
                                 width="32"
                                 height="32" 
                                 src="./images/github.png">
@@ -54,7 +67,7 @@
                 </li>
                 <li>
                     <a href="https://www.linkedin.com/in/brandonmanke">
-                        <img id="linkedin"
+                        <img id="linkedin" loading="lazy" decoding="async"
                                 width="32"
                                 height="32" 
                                 src="./images/linkedin.png">
@@ -63,7 +76,7 @@
                 <li>
                     <!-- https://medium.com/@brandonmanke -->
                     <a href="https://blog.brandonmanke.com">
-                        <img id="medium"
+                        <img id="medium" loading="lazy" decoding="async"
                                 width="32"
                                 height="32" 
                                 src="./images/medium.png">
@@ -71,7 +84,7 @@
                 </li>
                 <li>
                     <a href="https://www.flickr.com/photos/bnm_/">
-                        <img id="flickr"
+                        <img id="flickr" loading="lazy" decoding="async"
                                 width="32"
                                 height="32" 
                                 src="./images/flickr.png">
@@ -103,60 +116,12 @@
             <div class="container">
                 <h2>Projects</h2>
                 <ul class="projects-list">
-                    <div class="el">
-                        <a href="https://csgoclicker.net/">
-                            <li class="project">
-                                <span class="name">CSGO Clicker</span>
-                                - 
-                                <span>Backend Developer - (TypeScript, MongoDB, Redis, Docker)</span>
-                            </li>
-                        </a>
-                    </div>
-                    <div class="el">
-                        <a href="https://github.com/brandonmanke/node-destiny-2">
-                            <li class="project">
-                                <span class="name">Node Destiny 2</span>
-                                - 
-                                <span>Node.js Library - (JavaScript)</span>
-                            </li>
-                        </a>
-                    </div>
-                    <div class="el">
-                        <a href="https://github.com/brandonmanke/ds">
-                            <li class="project">
-                                <span class="name">Event Notifier</span>
-                                - 
-                                <span>Project - (Go, Redis, Docker, JavaScript, React)</span>
-                            </li>
-                        </a>
-                    </div>
-                    <div class="el">
-                        <a href="https://github.com/brandonmanke/k-means-clustering">
-                            <li class="project">
-                                <span class="name">K-Means Clustering</span>
-                                - 
-                                <span>Project - (C++, Docker)</span>
-                            </li>
-                        </a>
-                    </div>
-                    <div class="el">
-                        <a href="https://brandonmanke.github.io/graph-project/">
-                            <li class="project">
-                                <span class="name">Graph Algorithm Visualization</span>
-                                - 
-                                <span>Project - (HTML, CSS, JavaScript)</span>
-                            </li>
-                        </a>
-                    </div>
-                    <div class="el">
-                        <a href="https://github.com/brandonmanke/smart-mirror">
-                            <li class="project">
-                                <span class="name">Smart Mirror</span>
-                                - 
-                                <span>Project - (Rasberry Pi, JavaScript, HTML, CSS)</span>
-                            </li>
-                        </a>
-                    </div>
+                    <li class="project"><a href="https://csgoclicker.net/"><span class="name">CSGO Clicker</span> - <span>Backend Developer - (TypeScript, MongoDB, Redis, Docker)</span></a></li>
+                    <li class="project"><a href="https://github.com/brandonmanke/node-destiny-2"><span class="name">Node Destiny 2</span> - <span>Node.js Library - (JavaScript)</span></a></li>
+                    <li class="project"><a href="https://github.com/brandonmanke/ds"><span class="name">Event Notifier</span> - <span>Project - (Go, Redis, Docker, JavaScript, React)</span></a></li>
+                    <li class="project"><a href="https://github.com/brandonmanke/k-means-clustering"><span class="name">K-Means Clustering</span> - <span>Project - (C++, Docker)</span></a></li>
+                    <li class="project"><a href="https://brandonmanke.github.io/graph-project/"><span class="name">Graph Algorithm Visualization</span> - <span>Project - (HTML, CSS, JavaScript)</span></a></li>
+                    <li class="project"><a href="https://github.com/brandonmanke/smart-mirror"><span class="name">Smart Mirror</span> - <span>Project - (Rasberry Pi, JavaScript, HTML, CSS)</span></a></li>
                 </ul>
             </div>
         </div>
@@ -177,8 +142,13 @@
                 return window.getComputedStyle(document.body).backgroundColor;
             }
 
-            // Enable transitions after initial render to avoid first-paint crossfade
-            html.classList.add('js-ready');
+            // Initialize toggle state and icon
+            const isDark = html.classList.contains('dark-mode') || body.classList.contains('dark-mode');
+            // Keep body in sync with root for CSS selectors that reference body.dark-mode
+            if (isDark) body.classList.add('dark-mode'); else body.classList.remove('dark-mode');
+            modeIcon.src = isDark ? './images/light-mode.svg' : './images/dark-mode.svg';
+            modeIcon.alt = isDark ? 'Toggle light mode' : 'Toggle dark mode';
+            toggleButton.setAttribute('aria-pressed', String(isDark));
 
             // Add click event listener to toggle button
             toggleButton.addEventListener('click', function() {
@@ -200,6 +170,10 @@
                 // Toggle dark mode classes
                 html.classList.toggle('dark-mode');
                 body.classList.toggle('dark-mode');
+                try {
+                    localStorage.setItem('theme', body.classList.contains('dark-mode') ? 'dark' : 'light');
+                    html.style.colorScheme = body.classList.contains('dark-mode') ? 'dark' : 'light';
+                } catch (e) {}
 
                 // Update button icon based on current mode
                 const isDarkMode = body.classList.contains('dark-mode');
@@ -210,6 +184,7 @@
                     modeIcon.src = './images/dark-mode.svg';
                     modeIcon.alt = 'Toggle dark mode';
                 }
+                toggleButton.setAttribute('aria-pressed', String(isDarkMode));
 
                 // Log after styles in the next paint frame (to validate what actually changed)
                 requestAnimationFrame(() => {
