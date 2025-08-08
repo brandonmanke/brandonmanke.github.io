@@ -10,6 +10,7 @@ body {
     /*background-color: #222f35;
     /*background-color: #000;*/
     /*background-color: #102026; /* maybe idk */
+    transition: background-color 300ms ease, color 300ms ease;
 }
 
 body.dark-mode {
@@ -21,6 +22,7 @@ a {
     /*color: #a0433d;*/
     color: #005979;
     text-decoration: none;
+    transition: color 300ms ease;
 }
 
 .dark-mode a {
@@ -64,6 +66,7 @@ a {
     width: 24px;
     height: 24px;
     filter: invert(0);
+    transition: filter 300ms ease;
 }
 
 .dark-mode .mode-toggle img {
@@ -93,6 +96,39 @@ a {
     background: url("../images/bg-dark.jpg") center center no-repeat;
     background-size: cover;
 }
+
+/* Crossfade the background images using layered pseudo-elements */
+.background::before,
+.background::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    transition: opacity 350ms ease;
+    will-change: opacity;
+}
+
+/* Light image visible by default */
+.background::before {
+    background-image: url("../images/bg-photo.jpg");
+    background-position: center bottom;
+    opacity: 1;
+}
+
+/* Dark image hidden by default */
+.background::after {
+    background-image: url("../images/bg-dark.jpg");
+    opacity: 0;
+}
+
+/* Flip opacities in dark mode for a smooth crossfade */
+.dark-mode .background::before { opacity: 0; }
+.dark-mode .background::after { opacity: 1; }
 
 .wrapper {
     position: relative;
@@ -182,6 +218,7 @@ a {
     background-color: #f8f9fa; /* #f8f9fa;*/
     /* ececec vs fff ? */
     opacity: 1;
+    transition: background-color 300ms ease, color 300ms ease;
     /*-webkit-transition: opacity 750ms linear;
     -transition: opacity 750ms linear;
     -o-transition: opacity 750ms linear;
@@ -351,4 +388,17 @@ a {
 
 .dark-mode .name:hover {
     color: #64c4f7;
+}
+
+
+/* Override base background swap to rely on crossfade layers */
+.background { background: none !important; }
+.dark-mode .background { background: none !important; }
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    body, a, .mode-toggle img, .background::before, .background::after {
+        transition: none !important;
+        animation: none !important;
+    }
 }
