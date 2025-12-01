@@ -9,12 +9,15 @@ html {
 }
 
 @media screen and (max-width: 600px) {
-    :root { --hero-height: 42vh; }
+    :root {
+        --hero-height: 42vh;
+    }
 }
 
 body {
     height: 100%;
-    font-family: 'Open Sans', sans-serif;
+    font-family: "Inter", sans-serif;
+    font-optical-sizing: auto;
     font-weight: 300;
     /*background-color: #222f35;
     /*background-color: #000;*/
@@ -44,7 +47,8 @@ a {
 
 /* Dark Mode Toggle */
 .mode-toggle {
-    display: none; /* Light mode toggle disabled */
+    display: none;
+    /* Light mode toggle disabled */
 }
 
 .mode-toggle:focus-visible {
@@ -154,8 +158,13 @@ a {
 }
 
 /* Flip opacities in dark mode for a smooth crossfade */
-.dark-mode .background::before { opacity: 0; }
-.dark-mode .background::after { opacity: 1; }
+.dark-mode .background::before {
+    opacity: 0;
+}
+
+.dark-mode .background::after {
+    opacity: 1;
+}
 
 .wrapper {
     position: relative;
@@ -205,24 +214,31 @@ a {
     text-decoration: none;
     display: inline-block;
     margin: 20px 0 20px 0;
-    width: 110px;
-    height: 35px;
-    border: 1px #fff solid;
-    -webkit-transition: all .5s ease;
-    -moz-transition: all .5s ease;
-    -o-transition: all .5s ease;
-    transition: all .5s ease;
+    width: 130px;
+    height: 42px;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 30px;
+    backdrop-filter: blur(4px);
+    background: rgba(255, 255, 255, 0.1);
+    -webkit-transition: all .3s ease;
+    -moz-transition: all .3s ease;
+    -o-transition: all .3s ease;
+    transition: all .3s ease;
     position: relative;
     overflow: hidden;
+    font-family: "Inter", sans-serif;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    font-size: 15px;
 }
 
-.button:hover {
-    background-color: rgba(255, 255, 255, 0.50);
-    color: transparent;
-    -webkit-transition: all .5s ease;
-    -moz-transition: all .5s ease;
-    -o-transition: all .5s ease;
-    transition: all .5s ease;
+.button:hover,
+.dark-mode #resume:hover {
+    background-color: rgba(255, 255, 255, 0.25);
+    color: #fff;
+    border-color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
 }
 
 /* Subtle shimmering sheen across the button */
@@ -233,21 +249,38 @@ a {
     bottom: -20%;
     left: -150%;
     width: 50%;
-    background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.55) 50%, transparent 100%);
+    background: linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.55) 50%, transparent 100%);
     transform: skewX(-20deg);
     pointer-events: none;
     animation: buttonSheen 7.2s ease-in-out 0.6s 1 forwards;
 }
 
 @keyframes buttonSheen {
-    0%, 12% { left: -150%; opacity: 0; }
-    13% { opacity: .25; }
-    28% { left: 150%; opacity: .25; }
-    29%, 100% { left: 150%; opacity: 0; }
+
+    0%,
+    12% {
+        left: -150%;
+        opacity: 0;
+    }
+
+    13% {
+        opacity: .25;
+    }
+
+    28% {
+        left: 150%;
+        opacity: .25;
+    }
+
+    29%,
+    100% {
+        left: 150%;
+        opacity: 0;
+    }
 }
 
 .button span {
-    line-height: 33px;
+    line-height: 40px;
 }
 
 /* MAIN SECTION */
@@ -264,29 +297,24 @@ a {
     width: 67%;
     /*color: #222f35;*/
     text-align: center;
-    /*background-color: #d1d8cd;*/
-    background-color: #f8f9fa; /* #f8f9fa;*/
-    /* ececec vs fff ? */
+    /* Glassmorphism */
+    background-color: rgba(248, 249, 250, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     opacity: 1;
-    transition: background-color 300ms ease, color 300ms ease;
-    border-radius: 12px;
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    transition: background-color 300ms ease, color 300ms ease, transform 300ms ease;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     position: relative;
     overflow: visible;
-    /*-webkit-transition: opacity 750ms linear;
-    -transition: opacity 750ms linear;
-    -o-transition: opacity 750ms linear;
-    transition: opacity 750ms linear;
-    animation: pop-in 750ms cubic-bezier(.65,.05,.36,1) forwards;
-    animation-delay: 750ms;*/
-    padding: 16px 0;
+    padding: 24px 0;
 }
 
 .dark-mode .about {
-    background-color: #192734;
+    background-color: rgba(21, 32, 43, 0.65);
+    border-color: rgba(255, 255, 255, 0.1);
     color: #e1e1e1;
-    border-color: rgba(255, 255, 255, 0.08);
 }
 
 /* Subtle ambient glow behind the about card */
@@ -309,11 +337,18 @@ a {
 }
 
 @keyframes aboutGlow {
-    0% { transform: scale(0.985); opacity: 0.06; }
-    100% { transform: scale(1.02); opacity: 0.12; }
+    0% {
+        transform: scale(0.985);
+        opacity: 0.06;
+    }
+
+    100% {
+        transform: scale(1.02);
+        opacity: 0.12;
+    }
 }
 
-/* tablet, landscape iPad, lo-res laptops ands desktops */ 
+/* tablet, landscape iPad, lo-res laptops ands desktops */
 @media screen and (max-width: 1000px) {
     .main {
         width: 85%;
@@ -325,8 +360,13 @@ a {
 }
 
 @keyframes pop-in {
-    from { transform: translateY(10px); } 
-    to { transform: translateY(0px); }
+    from {
+        transform: translateY(10px);
+    }
+
+    to {
+        transform: translateY(0px);
+    }
 }
 
 .about h2 {
@@ -358,12 +398,14 @@ a {
 .about .info ul {
     width: 90%;
     margin: 8px auto 0;
-    padding-left: 1.25rem; /* keep bullets but align nicely */
+    padding-left: 1.25rem;
+    /* keep bullets but align nicely */
     margin-left: 38px;
 }
 
-.about .info ul li + li {
-    margin-top: 4px; /* very small vertical spacing */
+.about .info ul li+li {
+    margin-top: 4px;
+    /* very small vertical spacing */
 }
 
 .about .info ul a:hover {
@@ -486,12 +528,22 @@ a {
 
 
 /* Override base background swap to rely on crossfade layers */
-.background { background: none !important; }
-.dark-mode .background { background: none !important; }
+.background {
+    background: none !important;
+}
+
+.dark-mode .background {
+    background: none !important;
+}
 
 /* Respect reduced motion preferences */
 @media (prefers-reduced-motion: reduce) {
-    body, a, .mode-toggle img, .background::before, .background::after {
+
+    body,
+    a,
+    .mode-toggle img,
+    .background::before,
+    .background::after {
         transition: none !important;
         animation: none !important;
     }

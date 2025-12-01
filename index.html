@@ -1,29 +1,32 @@
 <!DOCTYPE html>
 <html lang="en" class="dark-mode">
+
 <head>
     <title>Brandon Manke</title>
     <meta charset="utf-8">
     <meta name=viewport content="width=device-width, initial-scale=1">
     <link rel="preload" fetchpriority="high" as="image" href="./images/bg-dark.jpg" type="image/jpg">
-    
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <script>
-      (function() {
-        try {
-          var stored = localStorage.getItem('theme');
-          var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-          var isDark = stored ? stored === 'dark' : prefersDark;
-          var root = document.documentElement;
-          if (isDark) { root.classList.add('dark-mode'); } else { root.classList.remove('dark-mode'); }
-          root.style.colorScheme = isDark ? 'dark' : 'light';
-        } catch (e) {}
-      })();
+        (function () {
+            try {
+                var stored = localStorage.getItem('theme');
+                var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                var isDark = stored ? stored === 'dark' : prefersDark;
+                var root = document.documentElement;
+                if (isDark) { root.classList.add('dark-mode'); } else { root.classList.remove('dark-mode'); }
+                root.style.colorScheme = isDark ? 'dark' : 'light';
+            } catch (e) { }
+        })();
     </script>
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="./css/normalize.css">
     <link rel="stylesheet" type="text/css" href="./css/style.css">
-    <link rel="author" href="https://github.com/brandonmanke"/>
+    <link rel="author" href="https://github.com/brandonmanke" />
     <link rel="shortcut icon" href="favicon/favicon.ico">
     <link rel="icon" sizes="16x16 32x32 64x64" href="favicon/favicon.ico">
     <link rel="icon" type="image/png" sizes="196x196" href="favicon/favicon-192.png">
@@ -45,11 +48,15 @@
     <meta name="msapplication-TileImage" content="favicon/favicon-144.png">
     <meta name="msapplication-config" content="favicon/browserconfig.xml">
     <noscript>
-      <style>
-        .city-glow, .city-lights { display: none !important; }
-      </style>
+        <style>
+            .city-glow,
+            .city-lights {
+                display: none !important;
+            }
+        </style>
     </noscript>
 </head>
+
 <body class="dark-mode">
     <div class="background"></div>
     <canvas class="city-glow" id="city-glow" aria-hidden="true"></canvas>
@@ -63,35 +70,27 @@
             <ul class="contact-list">
                 <li>
                     <a href="https://github.com/brandonmanke">
-                        <img id="github" loading="lazy" decoding="async"
-                                width="32"
-                                height="32" 
-                                src="./images/github.png">
+                        <img id="github" loading="lazy" decoding="async" width="32" height="32"
+                            src="./images/github.png">
                     </a>
                 </li>
                 <li>
                     <a href="https://www.linkedin.com/in/brandonmanke">
-                        <img id="linkedin" loading="lazy" decoding="async"
-                                width="32"
-                                height="32" 
-                                src="./images/linkedin.png">
+                        <img id="linkedin" loading="lazy" decoding="async" width="32" height="32"
+                            src="./images/linkedin.png">
                     </a>
                 </li>
                 <li>
                     <!-- https://medium.com/@brandonmanke -->
                     <a href="https://blog.brandonmanke.com">
-                        <img id="medium" loading="lazy" decoding="async"
-                                width="32"
-                                height="32" 
-                                src="./images/medium.png">
+                        <img id="medium" loading="lazy" decoding="async" width="32" height="32"
+                            src="./images/medium.png">
                     </a>
                 </li>
                 <li>
                     <a href="https://www.flickr.com/photos/bnm_/">
-                        <img id="flickr" loading="lazy" decoding="async"
-                                width="32"
-                                height="32" 
-                                src="./images/flickr.png">
+                        <img id="flickr" loading="lazy" decoding="async" width="32" height="32"
+                            src="./images/flickr.png">
                     </a>
                 </li>
             </ul>
@@ -104,7 +103,8 @@
                 <p>
                     I am currently working as a Software Engineer at <a href="https://yelp.com/">Yelp</a>.
                     Some areas of interest to me are: distributed systems, machine learning, and operating systems.
-                    A few of my hobbies outside of programming include <a href="https://www.flickr.com/photos/bnm_/">photography</a>, music, and snowboarding.
+                    A few of my hobbies outside of programming include <a
+                        href="https://www.flickr.com/photos/bnm_/">photography</a>, music, and snowboarding.
                 </p>
                 <p>
                     I am not seeking a full-time position at this time.
@@ -136,7 +136,7 @@
         </div>-->
     </div>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const html = document.documentElement;
             const body = document.body;
             const backgroundEl = document.querySelector('.background');
@@ -206,17 +206,17 @@
                     const threshold = isDark ? 125 : 155; // luminance threshold (increased glow)
                     let count = 0;
                     for (let i = 0; i < d.length; i += 4) {
-                        const r = d[i], g = d[i+1], b = d[i+2];
-                        const lum = 0.2126*r + 0.7152*g + 0.0722*b;
+                        const r = d[i], g = d[i + 1], b = d[i + 2];
+                        const lum = 0.2126 * r + 0.7152 * g + 0.0722 * b;
                         if (lum > threshold) {
                             const strength = (lum - threshold) / (255 - threshold);
                             d[i] = warm[0];
-                            d[i+1] = warm[1];
-                            d[i+2] = warm[2];
-                            d[i+3] = Math.max(d[i+3], Math.floor(70 + 170 * strength));
+                            d[i + 1] = warm[1];
+                            d[i + 2] = warm[2];
+                            d[i + 3] = Math.max(d[i + 3], Math.floor(70 + 170 * strength));
                             count++;
                         } else {
-                            d[i+3] = 0;
+                            d[i + 3] = 0;
                         }
                     }
                     offCtx.putImageData(data, 0, 0);
@@ -234,7 +234,7 @@
                 if (!blurCtx) return;
                 // Prefer canvas filter; fallback to shadow blur via CSS after draw
                 const blurRadius = isDark ? 10 : 8;
-                try { blurCtx.filter = `blur(${blurRadius}px)`; } catch(_) {}
+                try { blurCtx.filter = `blur(${blurRadius}px)`; } catch (_) { }
                 blurCtx.drawImage(off, 0, 0);
 
                 // Composite to main canvas
@@ -253,6 +253,7 @@
             let lights = [];
             let planes = [];
             let lightsAnim = 0;
+
             function setupLights() {
                 if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
                     cancelAnimationFrame(lightsAnim);
@@ -263,7 +264,7 @@
                     lightsCanvas.height = Math.max(1, Math.floor(rect.height * dpr));
                     const ctx = lightsCanvas.getContext('2d');
                     if (!ctx) return;
-                    ctx.setTransform(dpr,0,0,dpr,0,0);
+                    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
                     drawLightsFrame(ctx, rect, 0, true);
                     return;
                 }
@@ -282,11 +283,11 @@
                 const bandDown = Math.max(3, Math.floor(rect.height * 0.08));
                 const isDark = body.classList.contains('dark-mode');
                 const colors = isDark ? [
-                    {r:255,g:64,b:64},
-                    {r:255,g:210,b:110}
+                    { r: 255, g: 64, b: 64 },
+                    { r: 255, g: 210, b: 110 }
                 ] : [
-                    {r:230,g:80,b:80},
-                    {r:255,g:200,b:120}
+                    { r: 230, g: 80, b: 80 },
+                    { r: 255, g: 200, b: 120 }
                 ];
                 const stepX = rect.width / mainCount;
                 const mainLights = new Array(mainCount).fill(0).map((_, i) => {
@@ -381,7 +382,7 @@
 
                 const ctx = lightsCanvas.getContext('2d');
                 if (!ctx) return;
-                ctx.setTransform(dpr,0,0,dpr,0,0);
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
                 // Initialize a single distant plane (higher in the sky)
                 const planesCount = 1;
@@ -390,7 +391,7 @@
                 const buffer = 60;
                 planes = new Array(planesCount).fill(0).map(() => {
                     const dir = Math.random() < 0.5 ? 1 : -1;
-                    const startX = dir > 0 ? -buffer - Math.random()*80 : rect.width + buffer + Math.random()*80;
+                    const startX = dir > 0 ? -buffer - Math.random() * 80 : rect.width + buffer + Math.random() * 80;
                     const y = skyTop + Math.random() * (skyBottom - skyTop);
                     return {
                         dir,
@@ -401,14 +402,15 @@
                         blinkSpeed: 0.7 + Math.random() * 0.6,
                         radius: 0.28 + Math.random() * 0.24,
                         trail: 10 + Math.random() * 16,
-                        red: {r:255,g:90,b:90},
-                        white: {r:255,g:255,b:255}
+                        red: { r: 255, g: 90, b: 90 },
+                        white: { r: 255, g: 255, b: 255 }
                     };
                 });
 
                 let start = performance.now();
                 function tick(now) {
                     const t = (now - start) / 1000;
+
                     drawLightsFrame(ctx, rect, t, false);
                     lightsAnim = requestAnimationFrame(tick);
                 }
@@ -417,10 +419,12 @@
 
             function drawLightsFrame(ctx, rect, t, staticOnly) {
                 ctx.clearRect(0, 0, rect.width, rect.height);
+                ctx.save();
+
                 ctx.globalCompositeOperation = 'lighter';
                 const isDark = body.classList.contains('dark-mode');
                 const scale = isDark ? 1.4 : 1.2; // keep small
-                for (let i=0; i<lights.length; i++) {
+                for (let i = 0; i < lights.length; i++) {
                     const L = lights[i];
                     let pulse;
                     if (staticOnly) {
@@ -440,25 +444,25 @@
                     }
                     const outer = L.radius * scale * 2.2;
                     const grad = ctx.createRadialGradient(L.x, L.y, 0, L.x, L.y, outer);
-                    const rgba = (a) => `rgba(${L.color.r},${L.color.g},${L.color.b},${(pulse*a).toFixed(3)})`;
+                    const rgba = (a) => `rgba(${L.color.r},${L.color.g},${L.color.b},${(pulse * a).toFixed(3)})`;
                     grad.addColorStop(0.0, rgba(1.0));
                     grad.addColorStop(0.25, rgba(0.35));
                     grad.addColorStop(1.0, rgba(0.0));
                     ctx.fillStyle = grad;
                     ctx.beginPath();
-                    ctx.arc(L.x, L.y, outer, 0, Math.PI*2);
+                    ctx.arc(L.x, L.y, outer, 0, Math.PI * 2);
                     ctx.fill();
                 }
                 // Draw distant planes
                 const buffer = 60;
-                for (let i=0; i<planes.length; i++) {
+                for (let i = 0; i < planes.length; i++) {
                     const P = planes[i];
                     const xRaw = P.startX + (staticOnly ? 0 : P.vx * t);
                     // wrap around
-                    let x = ((xRaw + buffer) % (rect.width + 2*buffer));
-                    if (x < 0) x += rect.width + 2*buffer;
+                    let x = ((xRaw + buffer) % (rect.width + 2 * buffer));
+                    if (x < 0) x += rect.width + 2 * buffer;
                     x -= buffer;
-                    const y = P.y + (staticOnly ? 0 : Math.sin((P.blinkPhase + t * 0.2) * 2*Math.PI) * 0.4);
+                    const y = P.y + (staticOnly ? 0 : Math.sin((P.blinkPhase + t * 0.2) * 2 * Math.PI) * 0.4);
                     const m = (P.blinkPhase + t * P.blinkSpeed) % 1;
                     const on = m < 0.15; // short duty
                     const color = on ? P.white : P.red;
@@ -466,32 +470,33 @@
                     const r = P.radius * (on ? 1.1 : 0.9);
                     const outer = r * 3.0;
                     const grad = ctx.createRadialGradient(x, y, 0, x, y, outer);
-                    const rgba = (a) => `rgba(${color.r},${color.g},${color.b},${(baseAlpha*a).toFixed(3)})`;
+                    const rgba = (a) => `rgba(${color.r},${color.g},${color.b},${(baseAlpha * a).toFixed(3)})`;
                     grad.addColorStop(0.0, rgba(1.0));
                     grad.addColorStop(0.35, rgba(0.4));
                     grad.addColorStop(1.0, rgba(0.0));
                     ctx.fillStyle = grad;
                     ctx.beginPath();
-                    ctx.arc(x, y, outer, 0, Math.PI*2);
+                    ctx.arc(x, y, outer, 0, Math.PI * 2);
                     ctx.fill();
 
                     // tiny trail
                     if (!staticOnly) {
                         const steps = 3;
-                        for (let s=1; s<=steps; s++) {
-                            const tx = x - P.dir * (P.trail * (s/steps));
+                        for (let s = 1; s <= steps; s++) {
+                            const tx = x - P.dir * (P.trail * (s / steps));
                             const ty = y;
-                            const tgrad = ctx.createRadialGradient(tx, ty, 0, tx, ty, outer*0.8*(1 - s/steps));
-                            const trgba = `rgba(${color.r},${color.g},${color.b},${(baseAlpha*0.25*(1 - s/steps)).toFixed(3)})`;
+                            const tgrad = ctx.createRadialGradient(tx, ty, 0, tx, ty, outer * 0.8 * (1 - s / steps));
+                            const trgba = `rgba(${color.r},${color.g},${color.b},${(baseAlpha * 0.25 * (1 - s / steps)).toFixed(3)})`;
                             tgrad.addColorStop(0.0, trgba);
                             tgrad.addColorStop(1.0, 'rgba(0,0,0,0)');
                             ctx.fillStyle = tgrad;
                             ctx.beginPath();
-                            ctx.arc(tx, ty, outer*0.8*(1 - s/steps), 0, Math.PI*2);
+                            ctx.arc(tx, ty, outer * 0.8 * (1 - s / steps), 0, Math.PI * 2);
                             ctx.fill();
                         }
                     }
                 }
+                ctx.restore();
                 lightsCanvas.style.opacity = '1';
             }
 
@@ -522,7 +527,8 @@
         });
     </script>
     <script>
-      !function(n){"use strict";n.loadCSS||(n.loadCSS=function(){});var o=loadCSS.relpreload={};/* Shortened for brevity */}("undefined"!=typeof global?global:this);
+        !function (n) { "use strict"; n.loadCSS || (n.loadCSS = function () { }); var o = loadCSS.relpreload = {};/* Shortened for brevity */ }("undefined" != typeof global ? global : this);
     </script>
 </body>
+
 </html>
