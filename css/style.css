@@ -5,7 +5,7 @@ html {
 
 :root {
     /* Adjustable hero height */
-    --hero-height: 48vh;
+    --hero-height: 43vh;
 }
 
 @media screen and (max-width: 600px) {
@@ -425,7 +425,7 @@ a {
 .contact-list {
     list-style: none;
     padding-left: 0;
-    margin: 0 auto;
+    margin: 15px auto;
     display: flex;
     justify-content: center;
 }
