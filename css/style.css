@@ -5,12 +5,12 @@ html {
 
 :root {
     /* Adjustable hero height */
-    --hero-height: 43vh;
+    --hero-height: 60vh; /* maybe 62 */
 }
 
 @media screen and (max-width: 600px) {
     :root {
-        --hero-height: 42vh;
+        --hero-height: 55vh;
     }
 }
 
@@ -27,6 +27,7 @@ body {
 
 body.dark-mode {
     background-color: #15202b;
+    /*background-color: #0f161c;  /* maybe */
     color: #e1e1e1;
 }
 
@@ -287,7 +288,7 @@ a {
 
 .main {
     width: 67%;
-    margin: 0 auto 90px auto;
+    margin: 32px auto 90px auto;
 }
 
 /* ABOUT SECTION */
