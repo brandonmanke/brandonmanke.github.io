@@ -64,6 +64,7 @@
     <div class="title">
         <h1>Brandon Manke</h1>
         <h3>Software Engineer</h3>
+        <h4>Email me: me at this domain</h4>
         <div class="contact">
             <ul class="contact-list">
                 <li>
@@ -87,7 +88,7 @@
             </ul>
         </div>
     </div>
-    <div class="main">
+    <!--<div class="main">
         <div class="about">
             <h2>About Me</h2>
             <div class="info">
@@ -104,7 +105,7 @@
                 </p>
             </div>
         </div>
-    </div>
+    </div>-->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const html = document.documentElement;
@@ -245,12 +246,21 @@
                 lightsCanvas.style.height = rect.height + 'px';
                 lightsCanvas.width = Math.max(1, Math.floor(rect.width * dpr));
                 lightsCanvas.height = Math.max(1, Math.floor(rect.height * dpr));
-                // Smaller lights, tighter vertical band near the skyline horizon
-                const mainCount = Math.max(42, Math.floor(rect.width / 32));
-                const microCount = Math.max(28, Math.floor(rect.width / 44));
-                const horizon = Math.floor(rect.height * 0.58); // a bit higher
-                const bandUp = Math.max(6, Math.floor(rect.height * 0.18));
-                const bandDown = Math.max(3, Math.floor(rect.height * 0.08));
+                // Keep distant lights clustered near the horizon while allowing a few city dips.
+                const mainCount = Math.max(56, Math.floor(rect.width / 26));
+                const microCount = Math.max(38, Math.floor(rect.width / 34));
+                const horizon = Math.floor(rect.height * 0.56);
+                const bandUp = Math.max(8, Math.floor(rect.height * 0.14));
+                const bandDown = Math.max(6, Math.floor(rect.height * 0.13));
+                const highestLightY = rect.height * 0.44;
+                const lowestLightY = rect.height * 0.68;
+                function horizonBiasedY(upScale, downScale) {
+                    const upLimit = Math.max(0, Math.min(bandUp * upScale, horizon - highestLightY));
+                    const up = Math.random() * upLimit;
+                    const down = Math.pow(Math.random(), 2.1) * bandDown * downScale;
+                    const cityDip = Math.random() < 0.18 ? Math.random() * bandDown * 0.35 : 0;
+                    return Math.min(lowestLightY, Math.max(highestLightY, horizon - up + down + cityDip));
+                }
                 const isDark = body.classList.contains('dark-mode');
                 const colors = isDark ? [
                     { r: 255, g: 64, b: 64 },
@@ -264,8 +274,7 @@
                     const baseX = (i + 0.5) * stepX;
                     const xJitter = (Math.random() - 0.5) * stepX * 0.25;
                     const x = baseX + xJitter;
-                    // Wider band biased upward (towards skyline)
-                    const y = horizon - Math.random() * bandUp + Math.random() * bandDown * 0.35;
+                    const y = horizonBiasedY(1, 1);
                     const color = colors[Math.random() < 0.65 ? 0 : 1];
                     const typeRand = Math.random();
                     if (typeRand < 0.18) { // blinkers
@@ -326,7 +335,7 @@
                 // micro lights: very small, subtle breathing or steady
                 const micro = new Array(microCount).fill(0).map(() => {
                     const x = Math.random() * rect.width;
-                    const y = horizon - Math.random() * bandUp * 0.8 + Math.random() * bandDown * 0.25;
+                    const y = horizonBiasedY(0.85, 0.75);
                     const color = colors[Math.random() < 0.8 ? 0 : 1];
                     const breathe = Math.random() < 0.7;
                     return breathe ? {
@@ -356,8 +365,8 @@
 
                 // Initialize a single distant plane (higher in the sky)
                 const planesCount = 1;
-                const skyTop = Math.floor(rect.height * 0.18);
-                const skyBottom = Math.floor(rect.height * 0.32);
+                const skyTop = Math.floor(rect.height * 0.14);
+                const skyBottom = Math.floor(rect.height * 0.4);
                 const buffer = 60;
                 planes = new Array(planesCount).fill(0).map(() => {
                     const dir = Math.random() < 0.5 ? 1 : -1;

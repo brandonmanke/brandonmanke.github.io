@@ -5,14 +5,14 @@ html {
 
 :root {
     /* Adjustable hero height */
-    --hero-height: 60vh; /* maybe 62 */
+    --hero-height: 100vh;
 }
 
-@media screen and (max-width: 600px) {
+/*@media screen and (max-width: 600px) {
     :root {
         --hero-height: 55vh;
     }
-}
+}*/
 
 body {
     height: 100%;
@@ -208,6 +208,20 @@ a {
     font-weight: 300;
     width: 100%;
     margin: 10px 0 10px 0;
+}
+
+.title h4 {
+    font-size: clamp(0.78rem, 1.35vw, 0.95rem);
+    font-weight: 300;
+    letter-spacing: 0.02em;
+    line-height: 1.35;
+    margin: 4px auto 0;
+    max-width: min(88vw, 360px);
+    opacity: 0.86;
+}
+
+h4 {
+    font-weight: 300;
 }
 
 .button {
@@ -426,7 +440,7 @@ a {
 .contact-list {
     list-style: none;
     padding-left: 0;
-    margin: 15px auto;
+    margin: 12px auto 0;
     display: flex;
     justify-content: center;
 }
