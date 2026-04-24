@@ -6,6 +6,27 @@ html {
 :root {
     /* Adjustable hero height */
     --hero-height: 100vh;
+    --hero-overscan: 0px;
+}
+
+@supports (height: 100dvh) {
+    :root {
+        --hero-height: 100dvh;
+    }
+}
+
+@media screen and (max-width: 760px) {
+    :root {
+        --hero-overscan: 10vh;
+    }
+}
+
+@supports (height: 100svh) {
+    @media screen and (max-width: 760px) {
+        :root {
+            --hero-overscan: 10svh;
+        }
+    }
 }
 
 /*@media screen and (max-width: 600px) {
@@ -183,6 +204,7 @@ a {
     font: inherit;
     line-height: 1;
     text-shadow: 0 1px 1px rgba(0, 0, 0, 0.45);
+    touch-action: manipulation;
     transform: translateX(-50%);
     transition: background-color 220ms ease, border-color 220ms ease, color 220ms ease, transform 220ms ease;
 }
@@ -377,6 +399,11 @@ a {
 }
 
 @media screen and (max-width: 760px) {
+    .profile-toggle {
+        width: 46px;
+        height: 46px;
+    }
+
     .profile-panel {
         bottom: 58px;
         width: calc(100% - 24px);
@@ -419,9 +446,9 @@ a {
     content: "";
     position: absolute;
     left: 0;
-    top: 0;
+    top: calc(0px - var(--hero-overscan));
     right: 0;
-    bottom: 0;
+    bottom: calc(0px - var(--hero-overscan));
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
