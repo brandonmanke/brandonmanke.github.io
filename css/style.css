@@ -1,32 +1,12 @@
 html {
     height: 100%;
     margin: 0;
+    overflow: hidden;
 }
 
 :root {
     /* Adjustable hero height */
     --hero-height: 100vh;
-    --hero-overscan: 0px;
-}
-
-@supports (height: 100dvh) {
-    :root {
-        --hero-height: 100dvh;
-    }
-}
-
-@media screen and (max-width: 760px) {
-    :root {
-        --hero-overscan: 10vh;
-    }
-}
-
-@supports (height: 100svh) {
-    @media screen and (max-width: 760px) {
-        :root {
-            --hero-overscan: 10svh;
-        }
-    }
 }
 
 /*@media screen and (max-width: 600px) {
@@ -40,14 +20,41 @@ body {
     font-family: "Inter", sans-serif;
     font-optical-sizing: auto;
     font-weight: 300;
+    overflow: hidden;
     /*background-color: #222f35;
     /*background-color: #000;*/
     /*background-color: #102026; /* maybe idk */
     transition: background-color 300ms ease, color 300ms ease;
 }
 
+@supports (height: 100svh) {
+    @media screen and (max-width: 760px) {
+        :root {
+            --hero-height: 100svh;
+        }
+    }
+}
+
+@media screen and (max-width: 760px) {
+
+    html,
+    body {
+        overscroll-behavior: none;
+    }
+
+    body {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+    }
+}
+
 body.dark-mode {
     background-color: #15202b;
+    background-image: url("../images/bg-dark.jpg");
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
     /*background-color: #0f161c;  /* maybe */
     color: #e1e1e1;
 }
@@ -407,7 +414,7 @@ a {
     .profile-panel {
         bottom: 58px;
         width: calc(100% - 24px);
-        max-height: calc(100vh - 104px);
+        max-height: calc(var(--hero-height) - 104px);
         border-radius: 26px;
     }
 
@@ -417,6 +424,7 @@ a {
         overflow-y: auto;
         padding: 22px;
         border-radius: 26px;
+        -webkit-overflow-scrolling: touch;
     }
 
     .profile-card::before {
@@ -446,9 +454,9 @@ a {
     content: "";
     position: absolute;
     left: 0;
-    top: calc(0px - var(--hero-overscan));
+    top: 0;
     right: 0;
-    bottom: calc(0px - var(--hero-overscan));
+    bottom: 0;
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;

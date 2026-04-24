@@ -286,6 +286,16 @@
                 });
             }
 
+            document.addEventListener('touchmove', (event) => {
+                const canScrollProfile = profilePanel
+                    && profilePanel.classList.contains('is-open')
+                    && event.target.closest
+                    && event.target.closest('.profile-card');
+                if (!canScrollProfile) {
+                    event.preventDefault();
+                }
+            }, { passive: false });
+
             window.addEventListener('hashchange', () => {
                 const nextSeed = readLightsSeedFromHash();
                 if (!nextSeed || nextSeed === lightsSeed) return;
