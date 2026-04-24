@@ -35,20 +35,6 @@ body {
     }
 }
 
-@media screen and (max-width: 760px) {
-
-    html,
-    body {
-        overscroll-behavior: none;
-    }
-
-    body {
-        position: fixed;
-        inset: 0;
-        width: 100%;
-    }
-}
-
 body.dark-mode {
     background-color: #15202b;
     background-image: url("../images/bg-dark.jpg");
@@ -409,10 +395,11 @@ a {
     .profile-toggle {
         width: 46px;
         height: 46px;
+        bottom: max(14px, env(safe-area-inset-bottom));
     }
 
     .profile-panel {
-        bottom: 58px;
+        bottom: max(66px, calc(env(safe-area-inset-bottom) + 54px));
         width: calc(100% - 24px);
         max-height: calc(var(--hero-height) - 104px);
         border-radius: 26px;
