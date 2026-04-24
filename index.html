@@ -60,6 +60,7 @@
     <div class="background"></div>
     <canvas class="city-glow" id="city-glow" aria-hidden="true"></canvas>
     <canvas class="city-lights" id="city-lights" aria-hidden="true"></canvas>
+    <button class="seed-link" id="lights-seed" type="button" aria-label="Copy shareable lights URL"></button>
     <div class="wrapper"></div>
     <div class="title">
         <h1>Brandon Manke</h1>
@@ -113,13 +114,112 @@
             const backgroundEl = document.querySelector('.background');
             const glowCanvas = document.getElementById('city-glow');
             const lightsCanvas = document.getElementById('city-lights');
+            const seedButton = document.getElementById('lights-seed');
             const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+            let lightsSeed = readLightsSeedFromHash() || generateLightsSeed();
+            let seedButtonReset = 0;
 
             const lightImg = new Image();
             const darkImg = new Image();
             // Light image retained for graceful fallback if needed
             lightImg.src = './images/bg-photo.jpg';
             darkImg.src = './images/bg-dark.jpg';
+
+            function readLightsSeedFromHash() {
+                const params = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+                const seed = params.get('lights');
+                return seed ? seed.trim().slice(0, 64) : '';
+            }
+
+            function generateLightsSeed() {
+                const bytes = new Uint8Array(5);
+                if (window.crypto && window.crypto.getRandomValues) {
+                    window.crypto.getRandomValues(bytes);
+                } else {
+                    for (let i = 0; i < bytes.length; i++) {
+                        bytes[i] = Math.floor(Math.random() * 256);
+                    }
+                }
+                return Array.from(bytes, (byte) => byte.toString(36).padStart(2, '0')).join('').slice(0, 8);
+            }
+
+            function hashSeed(seed) {
+                let h = 2166136261;
+                for (let i = 0; i < seed.length; i++) {
+                    h ^= seed.charCodeAt(i);
+                    h = Math.imul(h, 16777619);
+                }
+                return h >>> 0;
+            }
+
+            function createSeededRandom(seed, salt) {
+                let state = hashSeed(seed + ':' + salt) || 0x6d2b79f5;
+                return function () {
+                    state += 0x6d2b79f5;
+                    let t = state;
+                    t = Math.imul(t ^ (t >>> 15), t | 1);
+                    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+                    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+                };
+            }
+
+            function buildSeedUrl() {
+                const url = new URL(window.location.href);
+                url.hash = 'lights=' + encodeURIComponent(lightsSeed);
+                return url.toString();
+            }
+
+            function writeClipboard(text) {
+                if (navigator.clipboard && window.isSecureContext) {
+                    return navigator.clipboard.writeText(text);
+                }
+                return new Promise((resolve, reject) => {
+                    const textarea = document.createElement('textarea');
+                    textarea.value = text;
+                    textarea.setAttribute('readonly', '');
+                    textarea.style.position = 'fixed';
+                    textarea.style.opacity = '0';
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    let copied = false;
+                    try {
+                        copied = document.execCommand('copy');
+                    } catch (e) { }
+                    document.body.removeChild(textarea);
+                    copied ? resolve() : reject();
+                });
+            }
+
+            function updateSeedButton(copied) {
+                if (!seedButton) return;
+                seedButton.textContent = copied ? 'copied lights url' : 'lights: ' + lightsSeed;
+                seedButton.title = 'Copy shareable lights URL';
+            }
+
+            function copySeedUrl() {
+                writeClipboard(buildSeedUrl()).then(() => {
+                    updateSeedButton(true);
+                    clearTimeout(seedButtonReset);
+                    seedButtonReset = setTimeout(() => updateSeedButton(false), 1200);
+                }).catch(() => {
+                    if (seedButton) {
+                        seedButton.title = 'Copy failed';
+                    }
+                });
+            }
+
+            updateSeedButton(false);
+            if (seedButton) {
+                seedButton.addEventListener('click', copySeedUrl);
+            }
+
+            window.addEventListener('hashchange', () => {
+                const nextSeed = readLightsSeedFromHash();
+                if (!nextSeed || nextSeed === lightsSeed) return;
+                lightsSeed = nextSeed;
+                updateSeedButton(false);
+                setupLights();
+            });
 
             function drawCover(ctx, img, width, height, align) {
                 const iw = img.naturalWidth || img.width;
@@ -246,6 +346,7 @@
                 lightsCanvas.style.height = rect.height + 'px';
                 lightsCanvas.width = Math.max(1, Math.floor(rect.width * dpr));
                 lightsCanvas.height = Math.max(1, Math.floor(rect.height * dpr));
+                const random = createSeededRandom(lightsSeed, 'lights');
                 // Keep distant lights clustered near the horizon while allowing a few city dips.
                 const mainCount = Math.max(56, Math.floor(rect.width / 26));
                 const microCount = Math.max(38, Math.floor(rect.width / 34));
@@ -256,9 +357,9 @@
                 const lowestLightY = rect.height * 0.68;
                 function horizonBiasedY(upScale, downScale) {
                     const upLimit = Math.max(0, Math.min(bandUp * upScale, horizon - highestLightY));
-                    const up = Math.random() * upLimit;
-                    const down = Math.pow(Math.random(), 2.1) * bandDown * downScale;
-                    const cityDip = Math.random() < 0.18 ? Math.random() * bandDown * 0.35 : 0;
+                    const up = random() * upLimit;
+                    const down = Math.pow(random(), 2.1) * bandDown * downScale;
+                    const cityDip = random() < 0.18 ? random() * bandDown * 0.35 : 0;
                     return Math.min(lowestLightY, Math.max(highestLightY, horizon - up + down + cityDip));
                 }
                 const isDark = body.classList.contains('dark-mode');
@@ -269,91 +370,92 @@
                     { r: 230, g: 80, b: 80 },
                     { r: 255, g: 200, b: 120 }
                 ];
+                const blinkThreshold = rect.width < 600 ? 0.08 : 0.18;
                 const stepX = rect.width / mainCount;
                 const mainLights = new Array(mainCount).fill(0).map((_, i) => {
                     const baseX = (i + 0.5) * stepX;
-                    const xJitter = (Math.random() - 0.5) * stepX * 0.25;
+                    const xJitter = (random() - 0.5) * stepX * 0.25;
                     const x = baseX + xJitter;
                     const y = horizonBiasedY(1, 1);
-                    const color = colors[Math.random() < 0.65 ? 0 : 1];
-                    const typeRand = Math.random();
-                    if (typeRand < 0.18) { // blinkers
+                    const color = colors[random() < 0.65 ? 0 : 1];
+                    const typeRand = random();
+                    if (typeRand < blinkThreshold) { // blinkers
                         return {
                             x, y, color,
                             type: 'blink',
-                            radius: 0.45 + Math.random() * 0.55,
-                            phase: Math.random(),
-                            speed: 0.18 + Math.random() * 0.22,
-                            duty: 0.08 + Math.random() * 0.12,
-                            base: 0.06 + Math.random() * 0.08,
+                            radius: 0.45 + random() * 0.55,
+                            phase: random(),
+                            speed: 0.18 + random() * 0.22,
+                            duty: 0.08 + random() * 0.12,
+                            base: 0.06 + random() * 0.08,
                             amp: 1.0
                         };
                     } else if (typeRand < 0.48) { // breathe (slow)
                         return {
                             x, y, color,
                             type: 'breathe',
-                            radius: 0.45 + Math.random() * 0.6,
-                            phase: Math.random() * Math.PI * 2,
-                            speed: 0.12 + Math.random() * 0.18,
-                            base: 0.10 + Math.random() * 0.14,
-                            amp: 0.18 + Math.random() * 0.22
+                            radius: 0.45 + random() * 0.6,
+                            phase: random() * Math.PI * 2,
+                            speed: 0.12 + random() * 0.18,
+                            base: 0.10 + random() * 0.14,
+                            amp: 0.18 + random() * 0.22
                         };
                     } else if (typeRand < 0.63) { // steady (tiny flicker)
                         return {
                             x, y, color,
                             type: 'steady',
-                            radius: 0.45 + Math.random() * 0.55,
-                            phase: Math.random() * Math.PI * 2,
-                            speed: 0.1 + Math.random() * 0.2,
-                            base: 0.14 + Math.random() * 0.16,
-                            amp: 0.04 + Math.random() * 0.06
+                            radius: 0.45 + random() * 0.55,
+                            phase: random() * Math.PI * 2,
+                            speed: 0.1 + random() * 0.2,
+                            base: 0.14 + random() * 0.16,
+                            amp: 0.04 + random() * 0.06
                         };
                     } else if (typeRand < 0.78) { // pulse + breathe combined
                         return {
                             x, y, color,
                             type: 'pulsebreath',
-                            radius: 0.5 + Math.random() * 0.6,
-                            phase: Math.random() * Math.PI * 2,
-                            speed: 0.4 + Math.random() * 0.6,
-                            base: 0.16 + Math.random() * 0.18,
-                            amp: 0.22 + Math.random() * 0.3,
-                            breatheSpeed: 0.08 + Math.random() * 0.12
+                            radius: 0.5 + random() * 0.6,
+                            phase: random() * Math.PI * 2,
+                            speed: 0.4 + random() * 0.6,
+                            base: 0.16 + random() * 0.18,
+                            amp: 0.22 + random() * 0.3,
+                            breatheSpeed: 0.08 + random() * 0.12
                         };
                     }
                     // pulse (default)
                     return {
                         x, y, color,
                         type: 'pulse',
-                        radius: 0.5 + Math.random() * 0.6,
-                        phase: Math.random() * Math.PI * 2,
-                        speed: 0.5 + Math.random() * 0.8,
-                        base: 0.18 + Math.random() * 0.22,
-                        amp: 0.28 + Math.random() * 0.35
+                        radius: 0.5 + random() * 0.6,
+                        phase: random() * Math.PI * 2,
+                        speed: 0.5 + random() * 0.8,
+                        base: 0.18 + random() * 0.22,
+                        amp: 0.28 + random() * 0.35
                     };
                 });
 
                 // micro lights: very small, subtle breathing or steady
                 const micro = new Array(microCount).fill(0).map(() => {
-                    const x = Math.random() * rect.width;
+                    const x = random() * rect.width;
                     const y = horizonBiasedY(0.85, 0.75);
-                    const color = colors[Math.random() < 0.8 ? 0 : 1];
-                    const breathe = Math.random() < 0.7;
+                    const color = colors[random() < 0.8 ? 0 : 1];
+                    const breathe = random() < 0.7;
                     return breathe ? {
                         x, y, color,
                         type: 'breathe',
-                        radius: 0.25 + Math.random() * 0.35,
-                        phase: Math.random() * Math.PI * 2,
-                        speed: 0.08 + Math.random() * 0.12,
-                        base: 0.05 + Math.random() * 0.08,
-                        amp: 0.12 + Math.random() * 0.16
+                        radius: 0.25 + random() * 0.35,
+                        phase: random() * Math.PI * 2,
+                        speed: 0.08 + random() * 0.12,
+                        base: 0.05 + random() * 0.08,
+                        amp: 0.12 + random() * 0.16
                     } : {
                         x, y, color,
                         type: 'pulse',
-                        radius: 0.25 + Math.random() * 0.35,
-                        phase: Math.random() * Math.PI * 2,
-                        speed: 0.35 + Math.random() * 0.4,
-                        base: 0.06 + Math.random() * 0.1,
-                        amp: 0.16 + Math.random() * 0.2
+                        radius: 0.25 + random() * 0.35,
+                        phase: random() * Math.PI * 2,
+                        speed: 0.35 + random() * 0.4,
+                        base: 0.06 + random() * 0.1,
+                        amp: 0.16 + random() * 0.2
                     };
                 });
 
@@ -369,18 +471,18 @@
                 const skyBottom = Math.floor(rect.height * 0.4);
                 const buffer = 60;
                 planes = new Array(planesCount).fill(0).map(() => {
-                    const dir = Math.random() < 0.5 ? 1 : -1;
-                    const startX = dir > 0 ? -buffer - Math.random() * 80 : rect.width + buffer + Math.random() * 80;
-                    const y = skyTop + Math.random() * (skyBottom - skyTop);
+                    const dir = random() < 0.5 ? 1 : -1;
+                    const startX = dir > 0 ? -buffer - random() * 80 : rect.width + buffer + random() * 80;
+                    const y = skyTop + random() * (skyBottom - skyTop);
                     return {
                         dir,
                         startX,
                         y,
-                        vx: dir * (10 + Math.random() * 6),
-                        blinkPhase: Math.random(),
-                        blinkSpeed: 0.7 + Math.random() * 0.6,
-                        radius: 0.28 + Math.random() * 0.24,
-                        trail: 10 + Math.random() * 16,
+                        vx: dir * (10 + random() * 6),
+                        blinkPhase: random(),
+                        blinkSpeed: 0.7 + random() * 0.6,
+                        radius: 0.28 + random() * 0.24,
+                        trail: 10 + random() * 16,
                         red: { r: 255, g: 90, b: 90 },
                         white: { r: 255, g: 255, b: 255 }
                     };

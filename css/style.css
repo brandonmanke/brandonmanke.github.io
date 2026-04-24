@@ -122,6 +122,39 @@ a {
     mix-blend-mode: screen;
 }
 
+.seed-link {
+    position: fixed;
+    z-index: 1000;
+    right: 14px;
+    bottom: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 999px;
+    padding: 4px 8px;
+    background: rgba(8, 14, 18, 0.32);
+    color: rgba(255, 255, 255, 0.58);
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    font: inherit;
+    font-size: 10px;
+    letter-spacing: 0.04em;
+    line-height: 1.2;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.55);
+    transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease;
+}
+
+.seed-link:hover,
+.seed-link:focus-visible {
+    border-color: rgba(255, 255, 255, 0.28);
+    background: rgba(8, 14, 18, 0.48);
+    color: rgba(255, 255, 255, 0.86);
+}
+
+.seed-link:focus-visible {
+    outline: 2px solid rgba(77, 172, 223, 0.7);
+    outline-offset: 3px;
+}
+
 /* glow overlay removed after debugging */
 
 .dark-mode .background {
@@ -557,6 +590,7 @@ h4 {
     body,
     a,
     .mode-toggle img,
+    .seed-link,
     .background::before,
     .background::after {
         transition: none !important;
