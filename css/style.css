@@ -407,11 +407,10 @@ a {
 
     .profile-card {
         grid-template-columns: 1fr;
-        gap: 20px;
-        overflow-y: auto;
+        gap: 0;
+        overflow-y: hidden;
         padding: 22px;
         border-radius: 26px;
-        -webkit-overflow-scrolling: touch;
     }
 
     .profile-card::before {
@@ -419,12 +418,7 @@ a {
     }
 
     .profile-timeline {
-        border-left: 0;
-        padding-left: 0;
-    }
-
-    .profile-timeline li {
-        padding-bottom: 16px;
+        display: none;
     }
 }
 
