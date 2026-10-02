@@ -63,14 +63,17 @@
     const DROP_VS = `#version 300 es
         layout(location = 0) in vec2 aCorner;
         layout(location = 1) in vec4 aDrop;   // x, y, rx, ry
-        layout(location = 2) in vec4 aShape;  // taper, wobble, seed, height ratio
+        layout(location = 2) in vec4 aShape;  // taper, wobble, contour phase, height ratio
+        layout(location = 3) in vec4 aShape2; // lean along the path, second contour phase
         uniform vec2 uView;
         out vec2 vLocal;
         flat out vec4 vShape;
+        flat out vec2 vShape2;
         flat out float vRadius;
         void main() {
-            vLocal = aCorner * 1.25;
+            vLocal = aCorner * vec2(1.25 + 1.25 * abs(aShape2.x), 1.25);
             vShape = aShape;
+            vShape2 = aShape2.xy;
             vRadius = min(aDrop.z, aDrop.w);
             vec2 clip = (aDrop.xy + vLocal * aDrop.zw) / uView * 2.0 - 1.0;
             gl_Position = vec4(clip.x, -clip.y, 0.0, 1.0);
@@ -80,16 +83,18 @@
         precision highp float;
         in vec2 vLocal;
         flat in vec4 vShape;
+        flat in vec2 vShape2;
         flat in float vRadius;
         uniform float uScale;
         out vec4 outColor;
         void main() {
             vec2 p = vLocal;
-            // sliding drops are narrower above their centre (y points down)
+            // sliding drops lean along their path, with the tail trailing behind,
+            // and are narrower above their centre (y points down)
+            p.x -= vShape2.x * p.y;
             p.x *= 1.0 + vShape.x * max(-p.y, 0.0);
             float a = atan(p.y, p.x + 1e-6);
-            float s = vShape.z * 6.2832;
-            float k = 1.0 + vShape.y * (0.6 * cos(2.0 * a + s) + 0.4 * cos(3.0 * a + s * 1.7));
+            float k = 1.0 + vShape.y * (0.6 * cos(2.0 * a + vShape.z) + 0.4 * cos(3.0 * a + vShape2.y));
             float d2 = dot(p, p) / (k * k);
             if (d2 >= 1.0) discard;
             // gravity pulls the bulk of the water towards the bottom edge
@@ -293,7 +298,7 @@
         return { vao, buf, floats: stride / 4 };
     }
 
-    const spriteGeo = instancedVao([4, 4]);
+    const spriteGeo = instancedVao([4, 4, 4]);
     const wipeGeo = instancedVao([4, 2]);
 
     function drawInstances(geo, data) {
@@ -402,13 +407,16 @@
 
     function addDrop(x, y, r) {
         if (drops.length >= CFG.maxDrops) return;
-        drops.push({ x, y, r, vx: 0, vy: 0, rx: r, ry: r, stretch: 0, spread: 0.3, seed: Math.random(), travel: 0, nextTrail: r, dead: false });
+        drops.push({
+            x, y, r, vx: 0, vy: 0, rx: r, ry: r, stretch: 0, spread: 0.3, seed: Math.random(), travel: 0, nextTrail: r,
+            heading: 0, headingTarget: (Math.random() - 0.5) * 0.3, nextSnag: 20 + 90 * Math.random(), morph: 0, dead: false
+        });
         impacts.push(x, r);
         wipes.push(x, y, x, y, r * 0.8, 1);
     }
 
     function addDroplet(x, y, r, ratio) {
-        spawns.push(x, y, r, r, 0, 0.05, Math.random(), ratio);
+        spawns.push(x, y, r, r, 0, 0.05, Math.random() * 6.2832, ratio, 0, Math.random() * 6.2832, 0, 0);
     }
 
     function randomDropRadius() {
@@ -481,11 +489,25 @@
             d.vy -= d.vy * Math.min(1, drag * dt);
             if (d.vy < 2 && drive <= 0) d.vy = 0;
             if (d.vy > 0) {
+                // Runs are mostly straight and kink where the glass snags the drop,
+                // rather than swaying smoothly; recent trails pull them in.
                 const pull = wetness(d.x + d.rx, ahead) - wetness(d.x - d.rx, ahead);
-                d.vx = d.vy * (0.45 * (noise(d.x / 45 + 50, d.y / 45) * 2 - 1) + 0.6 * pull);
+                d.heading += (d.headingTarget + 0.5 * pull - d.heading) * Math.min(1, dt * 14);
+                d.vx = d.vy * d.heading;
                 d.x += d.vx * dt;
                 d.y += d.vy * dt;
                 const moved = Math.hypot(d.x - x0, d.y - y0);
+                d.morph += moved / 25;
+                d.nextSnag -= moved;
+                if (d.nextSnag <= 0) {
+                    // it hesitates, squashes against the snag and sets off at a new
+                    // angle; heavier drops get knocked off course less
+                    const kick = (Math.random() < 0.3 ? 0.55 : 0.18) * (1.2 - 0.6 * Math.min(1, d.r / 12));
+                    d.headingTarget = Math.max(-0.6, Math.min(0.6, 0.45 * d.headingTarget + (Math.random() * 2 - 1) * kick));
+                    d.vy *= 1 - (0.1 + 0.35 * Math.random()) * (1.2 - 0.6 * Math.min(1, d.r / 12));
+                    d.spread = Math.min(0.35, d.spread + 0.1);
+                    d.nextSnag = 20 + 90 * Math.random();
+                }
                 d.r = Math.cbrt(d.r * d.r * d.r + CFG.sweep * 2 * d.r * moved);
                 // Shed small droplets from the tail as the drop runs.
                 d.travel += moved;
@@ -494,13 +516,14 @@
                     d.nextTrail = d.r * (0.8 + Math.random());
                     const t = 1 - d.travel / Math.max(moved, 1e-3);
                     const rt = Math.max(0.5, d.r * (0.14 + 0.16 * Math.random()));
-                    const tx = x0 + (d.x - x0) * t + (Math.random() - 0.5) * d.rx * 0.5;
+                    const tx = x0 + (d.x - x0) * t - d.heading * (d.ry + rt * 1.3) + (Math.random() - 0.5) * d.rx * 0.5;
                     const ty = y0 + (d.y - y0) * t - d.ry - rt * 1.3;
                     addDroplet(tx, ty, rt, 0.45);
                     d.r = Math.cbrt(Math.max(0.1, d.r * d.r * d.r - rt * rt * rt));
                 }
             }
             d.r -= CFG.evaporate * dt / d.r;
+            if (d.vy === 0) d.heading *= Math.exp(-dt * 4);
             const sp = Math.min(1, d.vy / 260);
             d.stretch += (sp - d.stretch) * Math.min(1, dt * 8);
             d.spread *= Math.exp(-dt * 9);
@@ -566,8 +589,11 @@
 
         const data = [];
         for (const d of drops) {
-            const wobble = 0.07 * Math.min(1, d.r / 5) * (1 - d.stretch);
-            data.push(d.x, d.y, d.rx, d.ry, 0.35 * d.stretch, wobble, d.seed, 0.46 - 0.1 * Math.min(1, d.r / 14));
+            // still drops keep a fixed uneven outline; running ones keep reshaping as they go
+            const wobble = 0.07 * Math.min(1, d.r / 5) * (1 - d.stretch) + 0.045 * d.stretch;
+            const lean = Math.max(-0.8, Math.min(0.8, d.heading * d.ry / d.rx));
+            data.push(d.x, d.y, d.rx, d.ry, 0.4 * d.stretch, wobble, d.seed * 6.2832 + d.morph, 0.46 - 0.1 * Math.min(1, d.r / 14),
+                lean, d.seed * 10.68 + d.morph * 1.6, 0, 0);
         }
         gl.bindFramebuffer(gl.FRAMEBUFFER, dropsRT.fb);
         gl.viewport(0, 0, width, height);
