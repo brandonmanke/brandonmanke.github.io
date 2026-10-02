@@ -136,6 +136,19 @@ a {
     mix-blend-mode: screen;
 }
 
+/* Distant lightning: black except during a flash, so screen only adds light */
+.lightning {
+    position: absolute;
+    z-index: 3;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: var(--hero-height);
+    pointer-events: none;
+    mix-blend-mode: screen;
+    visibility: hidden;
+}
+
 .rain {
     position: absolute;
     z-index: 4;
@@ -239,7 +252,7 @@ a {
 }
 
 .rain-setting span {
-    width: 44px;
+    width: 50px;
 }
 
 .rain-setting input[type="range"] {

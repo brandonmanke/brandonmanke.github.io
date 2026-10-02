@@ -59,7 +59,8 @@
         warmup: 14,            // simulated seconds before the first frame
         parallax: 0.012,       // how far the city shifts behind the glass, × screen size
         wipeRadius: 18,        // cursor / finger wiping the mist
-        sound: false           // synthesised placeholder; hidden until there's a real recording
+        sound: false,          // synthesised placeholder; hidden until there's a real recording
+        lightningEvery: 14     // average seconds between distant lightning flashes (plus a 5 s minimum)
     };
 
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -217,6 +218,8 @@
         uniform float uRefract;
         uniform vec2 uShift;   // parallax: where the city sits behind the glass
         uniform float uZoom;
+        uniform sampler2D uLightning; // distant flashes, screened over the scene
+        uniform float uFlash;
         out vec4 outColor;
         float heightAt(ivec2 p) {
             p = clamp(p, ivec2(0), ivec2(uRes) - 1);
@@ -236,6 +239,8 @@
             vec3 refr = vec3(texture(uScene, sceneUv + offset * 1.02).r,
                              texture(uScene, sceneUv + offset).g,
                              texture(uScene, sceneUv + offset * 0.98).b);
+            vec3 strike = texture(uLightning, sceneUv + offset).rgb * uFlash;
+            refr = 1.0 - (1.0 - refr) * (1.0 - strike);
             refr *= 1.15;
             // light hitting the steep rim is mostly reflected back into the dark room
             refr *= 1.0 - 0.85 * smoothstep(0.7, 1.6, steep);
@@ -243,7 +248,8 @@
             refr += 0.12 * pow(max(dot(n, normalize(vec3(-0.35, 0.6, 1.0))), 0.0), 60.0);
 
             float fog = clamp(texelFetch(uWet, p, 0).g, 0.0, 1.0);
-            vec3 haze = texture(uBlur, sceneUv).rgb * 1.12 + vec3(0.010, 0.016, 0.020);
+            vec3 behind = 1.0 - (1.0 - texture(uBlur, sceneUv).rgb) * (1.0 - texture(uLightning, sceneUv).rgb * uFlash);
+            vec3 haze = behind * 1.12 + vec3(0.010, 0.016, 0.020);
             vec4 color = mix(vec4(haze, 1.0) * fog, vec4(refr, 1.0), smoothstep(0.0, 0.45, h));
 
             float dither = fract(sin(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453) - 0.5;
@@ -384,7 +390,7 @@
     // Parallax and wiping are opt-in from the panel. The city's shift is -1..1
     // of CFG.parallax, scaled by depth, which eases in and out with the toggle;
     // the photo zooms by the same amount so the shift never reveals its edges.
-    let parallaxOn = false, wipeOn = true, depth = 0;
+    let parallaxOn = false, wipeOn = true, lightningOn = true, depth = 0;
     const shift = { x: 0, y: 0, tx: 0, ty: 0 };
     let lastPointer = null;
     const impacts = []; // x, radius of drops that landed this frame, for the sound
@@ -627,7 +633,7 @@
         gl.viewport(0, 0, width, height);
         const u = progs.composite.u;
         gl.useProgram(progs.composite.p);
-        [sceneTex, blurB.tex, dropsRT.tex, wetA.tex].forEach((t, i) => {
+        [sceneTex, blurB.tex, dropsRT.tex, wetA.tex, lightningTex].forEach((t, i) => {
             gl.activeTexture(gl.TEXTURE0 + i);
             gl.bindTexture(gl.TEXTURE_2D, t);
         });
@@ -635,6 +641,8 @@
         gl.uniform1i(u.uBlur, 1);
         gl.uniform1i(u.uDrops, 2);
         gl.uniform1i(u.uWet, 3);
+        gl.uniform1i(u.uLightning, 4);
+        gl.uniform1f(u.uFlash, flash ? 1 : 0);
         gl.uniform2f(u.uRes, width, height);
         gl.uniform1f(u.uRefract, CFG.refraction * height);
         gl.uniform2f(u.uShift, shift.x * CFG.parallax * depth, -shift.y * CFG.parallax * depth);
@@ -726,6 +734,7 @@
         canvas.height = height;
         canvas.style.width = W + 'px';
         canvas.style.height = H + 'px';
+        sizeLightning();
         [blurA, blurB, dropsRT, wetA, wetB].forEach(freeTarget);
         const bw = Math.max(1, Math.round(width / 4)), bh = Math.max(1, Math.round(height / 4));
         try {
@@ -750,6 +759,8 @@
         gridH = Math.ceil(H / CELL);
         wetGrid = new Float32Array(gridW * gridH).fill(-1e6);
         warmup();
+        flash = null;
+        nextFlashAt = clock + 4 + Math.random() * 8;
         if (!reducedMotion) applyParallax();
         render();
         canvas.style.opacity = '1';
@@ -772,6 +783,7 @@
         shift.y += (shift.ty - shift.y) * ease;
         depth += ((parallaxOn ? 1 : 0) - depth) * ease;
         applyParallax();
+        updateLightning();
         if (sound) playSound();
         impacts.length = 0;
         render();
@@ -807,7 +819,7 @@
     function saveSettings() {
         try {
             localStorage.setItem(STORE_KEY, JSON.stringify({
-                rain: amountInput.value, flow: flowInput.value, parallax: parallaxOn, wipe: wipeOn
+                rain: amountInput.value, flow: flowInput.value, parallax: parallaxOn, wipe: wipeOn, lightning: lightningOn
             }));
         } catch (e) { }
     }
@@ -852,6 +864,9 @@
         bindSwitch('rain-wipe', saved.wipe !== false, (on) => {
             wipeOn = on;
         });
+        bindSwitch('rain-lightning', saved.lightning !== false, (on) => {
+            lightningOn = on;
+        });
         const soundButton = document.getElementById('rain-sound');
         if (soundButton && CFG.sound && (window.AudioContext || window.webkitAudioContext)) {
             soundButton.closest('.rain-setting').hidden = false;
@@ -870,7 +885,7 @@
 
     // ---------- parallax & wiping ----------
 
-    const sceneLayers = [backgroundEl, glowCanvas, document.getElementById('city-lights')].filter(Boolean);
+    const sceneLayers = [backgroundEl, glowCanvas, document.getElementById('city-lights'), document.getElementById('lightning')].filter(Boolean);
 
     function sceneZoom() {
         return 1 + (2 * CFG.parallax + 0.004) * depth;
@@ -940,6 +955,270 @@
         shift.tx = Math.max(-1, Math.min(1, (tiltBase.gamma - e.gamma) / 15));
         shift.ty = Math.max(-1, Math.min(1, (tiltBase.beta - e.beta) / 15));
     });
+
+    // ---------- lightning ----------
+
+    // A storm somewhere out past the city: every so often its clouds light up
+    // from inside, a few quick strokes and then a fade, and now and then a
+    // bolt shows below the cloud base. It's drawn small into its own canvas,
+    // which screens over the photo and is fed to the rain shader too, so the
+    // drops and mist on the glass catch each flash.
+    const lightningCanvas = document.getElementById('lightning');
+    const lctx = lightningCanvas && lightningCanvas.getContext('2d');
+    const lightningTex = gl.createTexture();
+    // Where the skyline meets the haze, and the tower's span, in photo coordinates.
+    const HORIZON = 0.465, TOWER = [0.62, 0.79];
+    let flash = null, nextFlashAt = Infinity, stormX = null, clouds = null;
+
+    function uploadLightning() {
+        gl.bindTexture(gl.TEXTURE_2D, lightningTex);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        if (lctx) gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, gl.RGBA, gl.UNSIGNED_BYTE, lightningCanvas);
+        else gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array(4));
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.MIRRORED_REPEAT);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.MIRRORED_REPEAT);
+    }
+
+    function clearLightning() {
+        if (!lctx) return;
+        lctx.globalCompositeOperation = 'source-over';
+        lctx.globalAlpha = 1;
+        lctx.fillStyle = '#000';
+        lctx.fillRect(0, 0, lightningCanvas.width, lightningCanvas.height);
+    }
+
+    function sizeLightning() {
+        if (lctx) {
+            // half resolution is plenty for glowing cloud and a distant bolt
+            lightningCanvas.width = Math.max(1, Math.round(W / 2));
+            lightningCanvas.height = Math.max(1, Math.round(H / 2));
+            lightningCanvas.style.width = W + 'px';
+            lightningCanvas.style.height = H + 'px';
+            lightningCanvas.style.visibility = 'hidden';
+            clearLightning();
+        }
+        uploadLightning();
+        stormX = null;
+        if (!clouds && lctx) (window.requestIdleCallback || setTimeout)(buildClouds);
+    }
+
+    // A strip of cloud for the flashes to light, made once while the page is idle.
+    function buildClouds() {
+        if (clouds) return;
+        const w = 384, h = 160;
+        const c = document.createElement('canvas');
+        c.width = w;
+        c.height = h;
+        const g = c.getContext('2d');
+        const img = g.createImageData(w, h);
+        const fbm = (x, y) => 0.5 * noise(x, y) + 0.3 * noise(x * 2.03, y * 2.03) + 0.2 * noise(x * 4.1, y * 4.1);
+        for (let y = 0; y < h; y++) {
+            for (let x = 0; x < w; x++) {
+                // warped so the shapes are irregular, and wider than they are tall
+                const u = x / 48, v = y / 28;
+                const n = fbm(u + 1.8 * fbm(u + 3.1, v + 1.7), v + 1.2 * fbm(u + 8.3, v + 2.9));
+                const val = (Math.pow(n, 1.6) * 1.35 + 0.08) * 255;
+                const i = (y * w + x) * 4;
+                img.data[i] = val * 0.74;
+                img.data[i + 1] = val * 0.8;
+                img.data[i + 2] = val;
+                img.data[i + 3] = 255;
+            }
+        }
+        g.putImageData(img, 0, 0);
+        clouds = c;
+    }
+
+    // Photo coordinates to lightning-canvas pixels, using the page's cover fit.
+    function photoToCanvas(px, py) {
+        const iw = photo.naturalWidth, ih = photo.naturalHeight, s = Math.max(W / iw, H / ih), k = lightningCanvas.width / W;
+        return [((px - 0.5) * iw * s + W / 2) * k, ((py - 0.5) * ih * s + H / 2) * k, iw * s * k, ih * s * k];
+    }
+
+    // Somewhere across the visible horizon, but not behind the tower.
+    function pickStormX() {
+        const half = W / (2 * photo.naturalWidth * Math.max(W / photo.naturalWidth, H / photo.naturalHeight));
+        for (let i = 0; i < 20; i++) {
+            const x = 0.5 + (Math.random() * 2 - 1) * half * 0.8;
+            if (x < TOWER[0] || x > TOWER[1]) return x;
+        }
+        return 0.5 - half * 0.5;
+    }
+
+    // Light from inside the cloud: a random patch of the cloud strip through a
+    // soft mask that falls off faster below the cloud base.
+    function cloudGlow(cx, cy, sx, up, down) {
+        const x0 = Math.floor(cx - 2.5 * sx), y0 = Math.floor(cy - 2.5 * up);
+        const w = Math.max(1, Math.ceil(5 * sx)), h = Math.max(1, Math.ceil(2.5 * up + 2.5 * down));
+        const c = document.createElement('canvas');
+        c.width = w;
+        c.height = h;
+        const g = c.getContext('2d');
+        const pw = clouds.width * (0.35 + 0.25 * Math.random()), ph = pw * h / w * 1.6;
+        g.drawImage(clouds, Math.random() * (clouds.width - pw), Math.random() * Math.max(0, clouds.height - ph), pw, Math.min(ph, clouds.height), 0, 0, w, h);
+        g.globalCompositeOperation = 'destination-in';
+        g.save();
+        g.translate(cx - x0, cy - y0);
+        g.scale(sx, up);
+        const blob = g.createRadialGradient(0, 0, 0, 0, 0, 2.5);
+        blob.addColorStop(0, 'rgba(0, 0, 0, 1)');
+        blob.addColorStop(0.35, 'rgba(0, 0, 0, 0.7)');
+        blob.addColorStop(0.7, 'rgba(0, 0, 0, 0.22)');
+        blob.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        g.fillStyle = blob;
+        g.fillRect(-2.5, -2.5, 5, 5);
+        g.restore();
+        // destination-in clears whatever it doesn't cover, so this spans the whole
+        // sprite: solid above the cloud base, fading out below it
+        const base = g.createLinearGradient(0, cy - y0, 0, h);
+        base.addColorStop(0, 'rgba(0, 0, 0, 1)');
+        base.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        g.fillStyle = base;
+        g.fillRect(0, 0, w, h);
+        return { c, x: x0, y: y0 };
+    }
+
+    // A jagged channel from the cloud base down towards the horizon.
+    function jagged(ax, ay, bx, by, rough) {
+        let pts = [[ax, ay], [bx, by]];
+        for (let level = 0; level < 6; level++) {
+            const next = [pts[0]];
+            for (let i = 1; i < pts.length; i++) {
+                const [px, py] = pts[i - 1], [qx, qy] = pts[i];
+                const len = Math.hypot(qx - px, qy - py);
+                next.push([(px + qx) / 2 + (Math.random() - 0.5) * len * rough, (py + qy) / 2 + (Math.random() - 0.5) * len * 0.1], [qx, qy]);
+            }
+            pts = next;
+        }
+        return pts;
+    }
+
+    function makeBolt(cx, cy, sx, bottom) {
+        const main = jagged(cx + (Math.random() - 0.5) * sx * 0.6, cy, cx + (Math.random() - 0.5) * sx * 0.9, bottom, 0.55);
+        const branches = [];
+        for (let i = Math.random() < 0.5 ? 1 : 2; i > 0; i--) {
+            const [px, py] = main[Math.floor(main.length * (0.15 + 0.45 * Math.random()))];
+            const len = (bottom - cy) * (0.15 + 0.2 * Math.random());
+            branches.push(jagged(px, py, px + (Math.random() < 0.5 ? -1 : 1) * len * 0.6, py + len, 0.5));
+        }
+        return { main, branches, top: cy, bottom };
+    }
+
+    function startFlash() {
+        if (stormX === null) stormX = pickStormX();
+        buildClouds();
+        const [cx, cy, pw, ph] = photoToCanvas(stormX + (Math.random() - 0.5) * 0.06, 0.38 + Math.random() * 0.05);
+        const sx = pw * (0.07 + 0.05 * Math.random()), up = ph * 0.07, down = ph * 0.025;
+        const gain = 0.3 + 0.55 * Math.random(); // some flashes are further off than others
+        // one to three return strokes, then the cloud fades; never more than
+        // three flashes a second
+        const strokes = [];
+        let t = 0;
+        const count = Math.random() < 0.4 ? 1 : Math.random() < 0.67 ? 2 : 3;
+        for (let i = 0; i < count; i++) {
+            strokes.push({ t, amp: i === 0 ? 1 : 0.45 + 0.55 * Math.random(), decay: 0.05 + 0.04 * Math.random() });
+            t += 0.12 + 0.1 * Math.random();
+        }
+        flash = {
+            start: clock,
+            end: strokes[count - 1].t + 1.2,
+            strokes,
+            // each stroke lights the cloud a little differently
+            glows: [cloudGlow(cx, cy, sx, up, down), cloudGlow(cx + sx * 0.3, cy - up * 0.2, sx * 0.8, up, down)],
+            bolt: Math.random() < 0.35 ? makeBolt(cx, cy - up * 0.9, sx, photoToCanvas(0, HORIZON)[1]) : null,
+            cx, cy, gain
+        };
+        stormX = Math.max(0.05, Math.min(0.95, stormX + (Math.random() - 0.5) * 0.02));
+    }
+
+    function strokeFlash(st, t) {
+        const u = t - st.t;
+        return u < 0 ? 0 : st.amp * Math.min(1, u / 0.012) * Math.exp(-u / st.decay);
+    }
+
+    function strokeGlow(st, t) {
+        const u = t - st.t;
+        return u < 0 ? 0 : strokeFlash(st, t) + st.amp * 0.22 * Math.exp(-u / 0.35);
+    }
+
+    function tracePath(pts) {
+        lctx.beginPath();
+        lctx.moveTo(pts[0][0], pts[0][1]);
+        for (let i = 1; i < pts.length; i++) lctx.lineTo(pts[i][0], pts[i][1]);
+        lctx.stroke();
+    }
+
+    function drawFlash(t) {
+        clearLightning();
+        lctx.globalCompositeOperation = 'lighter';
+        let glow = 0, sharp = 0;
+        flash.strokes.forEach((st, i) => {
+            const level = strokeGlow(st, t);
+            glow += level;
+            sharp += strokeFlash(st, t);
+            if (level < 0.002) return;
+            const g = flash.glows[i % flash.glows.length];
+            lctx.globalAlpha = Math.min(1, level * flash.gain);
+            lctx.drawImage(g.c, g.x, g.y);
+        });
+        // a little light across the whole cloud deck
+        const r = lightningCanvas.width * 0.5;
+        lctx.save();
+        lctx.translate(flash.cx, flash.cy);
+        lctx.scale(1, 0.45);
+        const wash = lctx.createRadialGradient(0, 0, 0, 0, 0, r);
+        wash.addColorStop(0, 'rgba(120, 132, 180, 1)');
+        wash.addColorStop(1, 'rgba(120, 132, 180, 0)');
+        lctx.globalAlpha = Math.min(1, glow) * 0.12 * flash.gain;
+        lctx.fillStyle = wash;
+        lctx.fillRect(-r, -r, 2 * r, 2 * r);
+        lctx.restore();
+        // the bolt only shows during the strokes themselves, fading into the haze
+        if (flash.bolt && sharp > 0.01) {
+            const b = flash.bolt;
+            const fade = lctx.createLinearGradient(0, b.top, 0, b.bottom);
+            fade.addColorStop(0, 'rgba(225, 232, 255, 1)');
+            fade.addColorStop(0.65, 'rgba(225, 232, 255, 0.55)');
+            fade.addColorStop(1, 'rgba(225, 232, 255, 0)');
+            lctx.strokeStyle = fade;
+            lctx.lineCap = 'round';
+            lctx.lineJoin = 'round';
+            const level = Math.min(1, sharp) * flash.gain;
+            lctx.globalAlpha = level * 0.22;
+            lctx.lineWidth = 3.5;
+            tracePath(b.main);
+            lctx.globalAlpha = level * 0.95;
+            lctx.lineWidth = 1.1;
+            tracePath(b.main);
+            lctx.globalAlpha = level * 0.5;
+            lctx.lineWidth = 0.8;
+            b.branches.forEach(tracePath);
+        }
+        lctx.globalAlpha = 1;
+    }
+
+    function updateLightning() {
+        if (!lctx) return;
+        if (!flash) {
+            if (!lightningOn || clock < nextFlashAt) return;
+            startFlash();
+            lightningCanvas.style.visibility = 'visible';
+        }
+        const t = clock - flash.start;
+        if (!lightningOn || t > flash.end) {
+            flash = null;
+            clearLightning();
+            lightningCanvas.style.visibility = 'hidden';
+            // storms cluster: sometimes another flash follows close behind
+            nextFlashAt = clock + (Math.random() < 0.2 ? 1.5 + 2.5 * Math.random() : 5 - Math.log(1 - Math.random()) * CFG.lightningEvery);
+            return;
+        }
+        drawFlash(t);
+        uploadLightning();
+    }
 
     // ---------- sound ----------
 
