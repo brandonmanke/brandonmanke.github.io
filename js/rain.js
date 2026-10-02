@@ -60,7 +60,8 @@
         parallax: 0.012,       // how far the city shifts behind the glass, × screen size
         wipeRadius: 18,        // cursor / finger wiping the mist
         sound: false,          // synthesised placeholder; hidden until there's a real recording
-        lightningEvery: 14     // average seconds between distant lightning flashes (plus a 5 s minimum)
+        lightningBusy: 16,     // mean seconds between lightning flashes while the storm is active...
+        lightningLull: 180     // ...and in its lulls; it drifts between the two over minutes
     };
 
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -760,7 +761,8 @@
         wetGrid = new Float32Array(gridW * gridH).fill(-1e6);
         warmup();
         flash = null;
-        nextFlashAt = clock + 4 + Math.random() * 8;
+        nextFlashAt = clock + 4;
+        followUp = false;
         if (!reducedMotion) applyParallax();
         render();
         canvas.style.opacity = '1';
@@ -783,7 +785,7 @@
         shift.y += (shift.ty - shift.y) * ease;
         depth += ((parallaxOn ? 1 : 0) - depth) * ease;
         applyParallax();
-        updateLightning();
+        updateLightning(dt);
         if (sound) playSound();
         impacts.length = 0;
         render();
@@ -968,7 +970,7 @@
     const lightningTex = gl.createTexture();
     // Where the skyline meets the haze, and the tower's span, in photo coordinates.
     const HORIZON = 0.465, TOWER = [0.62, 0.79];
-    let flash = null, nextFlashAt = Infinity, stormX = null, clouds = null;
+    let flash = null, nextFlashAt = Infinity, followUp = false, stormX = null, clouds = null;
 
     function uploadLightning() {
         gl.bindTexture(gl.TEXTURE_2D, lightningTex);
@@ -1217,10 +1219,22 @@
         lctx.globalAlpha = 1;
     }
 
-    function updateLightning() {
+    // How active the storm is, 0..1. It wanders between spells of flashes
+    // every ten or twenty seconds and lulls of minutes, and each visit arrives
+    // somewhere different in that, so the first flash may take a while.
+    function stormBusy() {
+        return Math.min(1, Math.max(0, noise(clock / 140, 31.7) * 1.8 - 0.55));
+    }
+
+    function updateLightning(dt) {
         if (!lctx) return;
         if (!flash) {
             if (!lightningOn || clock < nextFlashAt) return;
+            // a follow-up flash goes when its time comes; otherwise strikes come at
+            // random, at whatever rate the storm is at right now
+            const gap = CFG.lightningBusy * Math.pow(CFG.lightningLull / CFG.lightningBusy, 1 - stormBusy());
+            if (!followUp && Math.random() >= dt / gap) return;
+            followUp = false;
             startFlash();
             lightningCanvas.style.visibility = 'visible';
         }
@@ -1229,8 +1243,9 @@
             flash = null;
             clearLightning();
             lightningCanvas.style.visibility = 'hidden';
-            // storms cluster: sometimes another flash follows close behind
-            nextFlashAt = clock + (Math.random() < 0.2 ? 1.5 + 2.5 * Math.random() : 5 - Math.log(1 - Math.random()) * CFG.lightningEvery);
+            // busy storms cluster: sometimes another flash follows close behind
+            followUp = Math.random() < 0.15 * stormBusy();
+            nextFlashAt = clock + (followUp ? 1.5 + 2.5 * Math.random() : 4);
             return;
         }
         drawFlash(t);
