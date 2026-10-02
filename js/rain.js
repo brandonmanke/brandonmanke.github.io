@@ -1049,16 +1049,27 @@
     }
 
     // Light from inside the cloud: a random patch of the cloud strip through a
-    // soft mask that falls off faster below the cloud base.
-    function cloudGlow(cx, cy, sx, up, down) {
+    // soft mask that falls off faster below the cloud base. Further off, the
+    // haze softens it (blur > 1).
+    function cloudGlow(cx, cy, sx, up, down, blur) {
         const x0 = Math.floor(cx - 2.5 * sx), y0 = Math.floor(cy - 2.5 * up);
         const w = Math.max(1, Math.ceil(5 * sx)), h = Math.max(1, Math.ceil(2.5 * up + 2.5 * down));
         const c = document.createElement('canvas');
         c.width = w;
         c.height = h;
         const g = c.getContext('2d');
-        const pw = clouds.width * (0.35 + 0.25 * Math.random()), ph = pw * h / w * 1.6;
-        g.drawImage(clouds, Math.random() * (clouds.width - pw), Math.random() * Math.max(0, clouds.height - ph), pw, Math.min(ph, clouds.height), 0, 0, w, h);
+        const pw = clouds.width * (0.35 + 0.25 * Math.random()), ph = Math.min(pw * h / w * 1.6, clouds.height);
+        const px = Math.random() * (clouds.width - pw), py = Math.random() * (clouds.height - ph);
+        if (blur > 1.05) {
+            // drawn small and scaled back up, which blurs it
+            const tmp = document.createElement('canvas');
+            tmp.width = Math.max(1, Math.round(w / blur));
+            tmp.height = Math.max(1, Math.round(h / blur));
+            tmp.getContext('2d').drawImage(clouds, px, py, pw, ph, 0, 0, tmp.width, tmp.height);
+            g.drawImage(tmp, 0, 0, w, h);
+        } else {
+            g.drawImage(clouds, px, py, pw, ph, 0, 0, w, h);
+        }
         g.globalCompositeOperation = 'destination-in';
         g.save();
         g.translate(cx - x0, cy - y0);
@@ -1110,9 +1121,15 @@
     function startFlash() {
         if (stormX === null) stormX = pickStormX();
         buildClouds();
-        const [cx, cy, pw, ph] = photoToCanvas(stormX + (Math.random() - 0.5) * 0.06, 0.38 + Math.random() * 0.05);
-        const sx = pw * (0.07 + 0.05 * Math.random()), up = ph * 0.07, down = ph * 0.025;
-        const gain = 0.3 + 0.55 * Math.random(); // some flashes are further off than others
+        // Distance is a spectrum weighted heavily towards far off: most flashes
+        // sit low on the horizon, small, dim, soft and boltless, and about one
+        // in eight comes in nearer. closeness runs from 0.4 (far) to 1 (nearest).
+        const closeness = 0.4 + 0.6 * Math.pow(Math.random(), 4.2);
+        const nearness = (closeness - 0.4) / 0.6;
+        const [cx, cy, pw, ph] = photoToCanvas(stormX + (Math.random() - 0.5) * 0.06, HORIZON - (0.035 + 0.05 * Math.random()) * closeness);
+        const sx = pw * (0.07 + 0.05 * Math.random()) * closeness, up = ph * 0.07 * closeness, down = ph * 0.025 * closeness;
+        const gain = (0.3 + 0.55 * Math.random()) * (0.55 + 0.45 * nearness);
+        const blur = 1 + 1.5 * (1 - nearness);
         // one to three return strokes, then the cloud fades; never more than
         // three flashes a second
         const strokes = [];
@@ -1127,9 +1144,9 @@
             end: strokes[count - 1].t + 1.2,
             strokes,
             // each stroke lights the cloud a little differently
-            glows: [cloudGlow(cx, cy, sx, up, down), cloudGlow(cx + sx * 0.3, cy - up * 0.2, sx * 0.8, up, down)],
-            bolt: Math.random() < 0.35 ? makeBolt(cx, cy - up * 0.9, sx, photoToCanvas(0, HORIZON)[1]) : null,
-            cx, cy, gain
+            glows: [cloudGlow(cx, cy, sx, up, down, blur), cloudGlow(cx + sx * 0.3, cy - up * 0.2, sx * 0.8, up, down, blur)],
+            bolt: Math.random() < 0.05 + 0.3 * Math.pow(nearness, 1.5) ? makeBolt(cx, cy - up * 0.9, sx, photoToCanvas(0, HORIZON)[1]) : null,
+            cx, cy, gain, closeness
         };
         stormX = Math.max(0.05, Math.min(0.95, stormX + (Math.random() - 0.5) * 0.02));
     }
@@ -1165,7 +1182,7 @@
             lctx.drawImage(g.c, g.x, g.y);
         });
         // a little light across the whole cloud deck
-        const r = lightningCanvas.width * 0.5;
+        const r = lightningCanvas.width * 0.5 * flash.closeness;
         lctx.save();
         lctx.translate(flash.cx, flash.cy);
         lctx.scale(1, 0.45);
@@ -1188,13 +1205,13 @@
             lctx.lineJoin = 'round';
             const level = Math.min(1, sharp) * flash.gain;
             lctx.globalAlpha = level * 0.22;
-            lctx.lineWidth = 3.5;
+            lctx.lineWidth = 3.5 * flash.closeness;
             tracePath(b.main);
             lctx.globalAlpha = level * 0.95;
-            lctx.lineWidth = 1.1;
+            lctx.lineWidth = Math.max(0.6, 1.1 * flash.closeness);
             tracePath(b.main);
             lctx.globalAlpha = level * 0.5;
-            lctx.lineWidth = 0.8;
+            lctx.lineWidth = Math.max(0.5, 0.8 * flash.closeness);
             b.branches.forEach(tracePath);
         }
         lctx.globalAlpha = 1;
