@@ -57,6 +57,7 @@
         refraction: 0.9,       // how wide a view each drop sees, × screen height
         blur: 9,               // how strongly the mist blurs the city
         warmup: 14,            // simulated seconds before the first frame
+        touchRain: 40,         // default rain slider on touch screens (the HTML's 55 elsewhere)
         rainRamp: 40,          // seconds for the rain to build from its random start to the slider's level
         parallax: 0.012,       // how far the city shifts behind the glass, × screen size
         wipeRadius: 18,        // cursor / finger wiping the mist
@@ -867,6 +868,8 @@
     if (settingsToggle && settingsPanel && amountInput && flowInput) {
         const saved = loadSettings();
         if (saved.rain !== undefined) amountInput.value = saved.rain;
+        // a phone is a small window to look through; lighter rain reads better on it
+        else if (window.matchMedia('(pointer: coarse)').matches) amountInput.value = CFG.touchRain;
         if (saved.flow !== undefined) flowInput.value = saved.flow;
         readSettings();
         amountInput.addEventListener('input', () => {
