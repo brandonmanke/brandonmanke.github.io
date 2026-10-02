@@ -229,6 +229,7 @@ a {
 
 .rain-settings {
     position: absolute;
+    z-index: 1;
     right: 0;
     bottom: calc(100% + 8px);
     display: grid;
@@ -743,6 +744,70 @@ a {
 
 .dark-mode .background {
     background: none !important;
+}
+
+/* On touch screens the corner controls keep their size but get bigger,
+   invisible tap areas (about 44px), and the slider thumb is easier to grab */
+@media (pointer: coarse) {
+    .seed-link,
+    .rain-switch {
+        position: relative;
+    }
+
+    /* (insets count from inside the 1px border) */
+    .seed-link::after,
+    .rain-switch::after {
+        content: "";
+        position: absolute;
+        inset: -12px;
+    }
+
+    /* split the 6px gap between the two corner buttons */
+    .rain-toggle::after {
+        right: -4px;
+    }
+
+    #lights-seed::after {
+        left: -4px;
+    }
+
+    /* panel rows are 9px apart, so switches only grow sideways much */
+    .rain-switch::after {
+        inset: -5px -13px;
+    }
+
+    .rain-setting input[type="range"] {
+        height: 28px;
+        margin: -7px 0;
+    }
+
+    .rain-setting input[type="range"]::-webkit-slider-thumb {
+        width: 24px;
+        height: 24px;
+        margin-top: -11px;
+        border: 7px solid transparent;
+        background-clip: padding-box;
+    }
+
+    .rain-setting input[type="range"]::-moz-range-thumb {
+        width: 24px;
+        height: 24px;
+        border: 7px solid transparent;
+        background-clip: padding-box;
+    }
+}
+
+/* Phones stack the two corner buttons, so split the gap vertically instead */
+@media (pointer: coarse) and (max-width: 480px) {
+    .rain-toggle::after {
+        right: -12px;
+        bottom: -4px;
+    }
+
+    #lights-seed::after {
+        left: -12px;
+        top: -4px;
+    }
 }
 
 /* Respect reduced motion preferences */
