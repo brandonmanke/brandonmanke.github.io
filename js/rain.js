@@ -39,7 +39,10 @@
         dropletLife: 45,
         refraction: 0.9,       // how wide a view each drop sees, × screen height
         blur: 9,               // how strongly the mist blurs the city
-        warmup: 14             // simulated seconds before the first frame
+        warmup: 14,            // simulated seconds before the first frame
+        parallax: 0.012,       // how far the city shifts behind the glass, × screen size
+        wipeRadius: 18,        // cursor / finger wiping the mist
+        sound: false           // synthesised placeholder; hidden until there's a real recording
     };
 
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -190,6 +193,8 @@
         uniform sampler2D uWet;
         uniform vec2 uRes;
         uniform float uRefract;
+        uniform vec2 uShift;   // parallax: where the city sits behind the glass
+        uniform float uZoom;
         out vec4 outColor;
         float heightAt(ivec2 p) {
             p = clamp(p, ivec2(0), ivec2(uRes) - 1);
@@ -204,10 +209,11 @@
 
             // Each drop is a small lens: it shows an inverted, shrunken view of
             // the city around it. Mipmapping keeps that view from shimmering.
-            vec2 offset = slope * (1.0 + 0.8 * steep * steep) * uRefract / uRes;
-            vec3 refr = vec3(texture(uScene, vUv + offset * 1.02).r,
-                             texture(uScene, vUv + offset).g,
-                             texture(uScene, vUv + offset * 0.98).b);
+            vec2 sceneUv = (vUv - 0.5 - uShift) / uZoom + 0.5;
+            vec2 offset = slope * (1.0 + 0.8 * steep * steep) * uRefract / uRes / uZoom;
+            vec3 refr = vec3(texture(uScene, sceneUv + offset * 1.02).r,
+                             texture(uScene, sceneUv + offset).g,
+                             texture(uScene, sceneUv + offset * 0.98).b);
             refr *= 1.15;
             // light hitting the steep rim is mostly reflected back into the dark room
             refr *= 1.0 - 0.85 * smoothstep(0.7, 1.6, steep);
@@ -215,7 +221,7 @@
             refr += 0.12 * pow(max(dot(n, normalize(vec3(-0.35, 0.6, 1.0))), 0.0), 60.0);
 
             float fog = clamp(texelFetch(uWet, p, 0).g, 0.0, 1.0);
-            vec3 haze = texture(uBlur, vUv).rgb * 1.12 + vec3(0.010, 0.016, 0.020);
+            vec3 haze = texture(uBlur, sceneUv).rgb * 1.12 + vec3(0.010, 0.016, 0.020);
             vec4 color = mix(vec4(haze, 1.0) * fog, vec4(refr, 1.0), smoothstep(0.0, 0.45, h));
 
             float dither = fract(sin(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453) - 0.5;
@@ -353,6 +359,13 @@
     let raf = 0, last = 0, ready = false, failed = false;
     // Set from the settings panel: how hard it rains, how readily drops run.
     let rainAmount = 1, flow = 1;
+    // Parallax and wiping are opt-in from the panel. The city's shift is -1..1
+    // of CFG.parallax, scaled by depth, which eases in and out with the toggle;
+    // the photo zooms by the same amount so the shift never reveals its edges.
+    let parallaxOn = false, wipeOn = false, depth = 0;
+    const shift = { x: 0, y: 0, tx: 0, ty: 0 };
+    let lastPointer = null;
+    const impacts = []; // x, radius of drops that landed this frame, for the sound
     const noiseSeed = [Math.random() * 1000, Math.random() * 1000];
 
     function hash(x, y) {
@@ -390,6 +403,7 @@
     function addDrop(x, y, r) {
         if (drops.length >= CFG.maxDrops) return;
         drops.push({ x, y, r, vx: 0, vy: 0, rx: r, ry: r, stretch: 0, spread: 0.3, seed: Math.random(), travel: 0, nextTrail: r, dead: false });
+        impacts.push(x, r);
         wipes.push(x, y, x, y, r * 0.8, 1);
     }
 
@@ -580,6 +594,8 @@
         gl.uniform1i(u.uWet, 3);
         gl.uniform2f(u.uRes, width, height);
         gl.uniform1f(u.uRefract, CFG.refraction * height);
+        gl.uniform2f(u.uShift, shift.x * CFG.parallax * depth, -shift.y * CFG.parallax * depth);
+        gl.uniform1f(u.uZoom, sceneZoom());
         drawFullscreen();
     }
 
@@ -647,6 +663,7 @@
             pendingDt += dt;
             if (pendingDt >= 0.5) flushWet();
         }
+        impacts.length = 0;
     }
 
     function resize() {
@@ -690,6 +707,7 @@
         gridH = Math.ceil(H / CELL);
         wetGrid = new Float32Array(gridW * gridH).fill(-1e6);
         warmup();
+        if (!reducedMotion) applyParallax();
         render();
         canvas.style.opacity = '1';
         ready = true;
@@ -706,6 +724,13 @@
         last = now;
         step(dt);
         pendingDt += dt;
+        const ease = 1 - Math.exp(-dt * 3);
+        shift.x += (shift.tx - shift.x) * ease;
+        shift.y += (shift.ty - shift.y) * ease;
+        depth += ((parallaxOn ? 1 : 0) - depth) * ease;
+        applyParallax();
+        if (sound) playSound();
+        impacts.length = 0;
         render();
         raf = requestAnimationFrame(frame);
     }
@@ -718,9 +743,22 @@
     const flowInput = document.getElementById('rain-flow');
 
     function readSettings() {
-        // 50 is the default for both: rain runs from dry to ~3x, flow from calm to streaming.
+        // 50 means the CFG rates: rain runs from dry to ~3x, flow from calm to streaming.
+        // The page starts from the slider values in the HTML.
         rainAmount = Math.pow(amountInput.value / 50, 1.6);
         flow = Math.pow(1.3, (50 - flowInput.value) / 50);
+    }
+
+    // An on/off pill button; aria-pressed holds the state.
+    function bindSwitch(id, onChange) {
+        const button = document.getElementById(id);
+        if (!button) return;
+        button.addEventListener('click', () => {
+            const on = button.getAttribute('aria-pressed') !== 'true';
+            button.setAttribute('aria-pressed', String(on));
+            button.textContent = on ? 'on' : 'off';
+            onChange(on);
+        });
     }
 
     function setPanelOpen(open) {
@@ -732,6 +770,19 @@
         readSettings();
         amountInput.addEventListener('input', readSettings);
         flowInput.addEventListener('input', readSettings);
+        bindSwitch('rain-parallax', (on) => {
+            parallaxOn = on;
+            shift.tx = 0;
+            shift.ty = 0;
+        });
+        bindSwitch('rain-wipe', (on) => {
+            wipeOn = on;
+        });
+        const soundButton = document.getElementById('rain-sound');
+        if (soundButton && CFG.sound && (window.AudioContext || window.webkitAudioContext)) {
+            soundButton.closest('.rain-setting').hidden = false;
+            bindSwitch('rain-sound', setSound);
+        }
         settingsToggle.addEventListener('click', () => setPanelOpen(settingsPanel.hidden));
         document.addEventListener('pointerdown', (e) => {
             if (!settingsPanel.hidden && !settingsPanel.contains(e.target) && !settingsToggle.contains(e.target)) setPanelOpen(false);
@@ -742,6 +793,192 @@
             settingsToggle.focus();
         });
     }
+
+    // ---------- parallax & wiping ----------
+
+    const sceneLayers = [backgroundEl, glowCanvas, document.getElementById('city-lights')].filter(Boolean);
+
+    function sceneZoom() {
+        return 1 + (2 * CFG.parallax + 0.004) * depth;
+    }
+
+    function applyParallax() {
+        if (!parallaxOn && depth < 0.001) {
+            // fully eased out: leave the layers exactly as the page draws them
+            depth = 0;
+            if (sceneLayers[0].style.transform) for (const el of sceneLayers) el.style.transform = '';
+            return;
+        }
+        const t = 'translate3d(' + (shift.x * CFG.parallax * depth * W).toFixed(2) + 'px, ' +
+            (shift.y * CFG.parallax * depth * H).toFixed(2) + 'px, 0) scale(' + sceneZoom().toFixed(5) + ')';
+        for (const el of sceneLayers) el.style.transform = t;
+    }
+
+    // The pointer stands in for where you're looking: the city drifts the other
+    // way, and (with wiping on) the pointer wipes a path through the mist.
+    function onPointerMove(e) {
+        if (!ready || reducedMotion || !e.isPrimary) return;
+        if (parallaxOn) {
+            shift.tx = 1 - 2 * e.clientX / W;
+            shift.ty = 1 - 2 * e.clientY / H;
+        }
+        const from = lastPointer || { x: e.clientX, y: e.clientY };
+        lastPointer = { x: e.clientX, y: e.clientY };
+        if (!wipeOn) return;
+        const radius = CFG.wipeRadius * (e.pointerType === 'mouse' ? 1 : 1.3);
+        wipes.push(from.x, from.y, e.clientX, e.clientY, radius, 1);
+        // the wiped water beads up along both edges of the path
+        const dx = e.clientX - from.x, dy = e.clientY - from.y, len = Math.hypot(dx, dy);
+        for (let t = 0; t < len; t += 3) {
+            for (const side of [-1, 1]) {
+                if (Math.random() < 0.35) continue;
+                const off = side * radius * (0.95 + 0.2 * Math.random());
+                addDroplet(from.x + dx * t / len - dy / len * off, from.y + dy * t / len + dx / len * off,
+                    0.5 + 1.1 * Math.random() * Math.random(), 0.5);
+            }
+        }
+    }
+
+    function releasePointer() {
+        lastPointer = null;
+        shift.tx = 0;
+        shift.ty = 0;
+    }
+
+    window.addEventListener('pointermove', onPointerMove);
+    window.addEventListener('pointerdown', (e) => {
+        if (e.pointerType !== 'mouse') onPointerMove(e);
+    });
+    window.addEventListener('pointerup', (e) => {
+        if (e.pointerType !== 'mouse') releasePointer();
+    });
+    window.addEventListener('pointercancel', releasePointer);
+    document.documentElement.addEventListener('pointerleave', releasePointer);
+
+    // Phones that report tilt without asking (Android) shift with it too; the
+    // resting angle slowly follows the phone so it re-centres when you settle.
+    let tiltBase = null;
+    window.addEventListener('deviceorientation', (e) => {
+        if (!ready || reducedMotion || !parallaxOn || lastPointer || e.beta === null || e.gamma === null) return;
+        if (!tiltBase) tiltBase = { beta: e.beta, gamma: e.gamma };
+        tiltBase.beta += (e.beta - tiltBase.beta) * 0.003;
+        tiltBase.gamma += (e.gamma - tiltBase.gamma) * 0.003;
+        shift.tx = Math.max(-1, Math.min(1, (tiltBase.gamma - e.gamma) / 15));
+        shift.ty = Math.max(-1, Math.min(1, (tiltBase.beta - e.beta) / 15));
+    });
+
+    // ---------- sound ----------
+
+    // A synthesised stand-in until there's a real recording: filtered noise for
+    // the wash of rain, plus a short tap for each drop that lands, panned to
+    // where it hit.
+    function createRainSound(ctx) {
+        const rate = ctx.sampleRate, len = rate * 4, fade = rate * 0.5;
+        const noise = ctx.createBuffer(2, len, rate);
+        for (let ch = 0; ch < 2; ch++) {
+            // pink noise (Paul Kellet's filter), with the end crossfaded into the
+            // start so the loop has no seam
+            const raw = new Float32Array(len + fade);
+            let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+            for (let i = 0; i < raw.length; i++) {
+                const white = Math.random() * 2 - 1;
+                b0 = 0.99886 * b0 + white * 0.0555179;
+                b1 = 0.99332 * b1 + white * 0.0750759;
+                b2 = 0.969 * b2 + white * 0.153852;
+                b3 = 0.8665 * b3 + white * 0.3104856;
+                b4 = 0.55 * b4 + white * 0.5329522;
+                b5 = -0.7616 * b5 - white * 0.016898;
+                raw[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.11;
+                b6 = white * 0.115926;
+            }
+            const data = noise.getChannelData(ch);
+            for (let i = 0; i < len; i++) {
+                const a = i < fade ? i / fade : 1;
+                data[i] = raw[i] * Math.sqrt(a) + (i < fade ? raw[len + i] * Math.sqrt(1 - a) : 0);
+            }
+        }
+
+        const master = ctx.createGain();
+        master.gain.value = 0;
+        master.connect(ctx.destination);
+
+        function bed(type, freq, q, level) {
+            const src = ctx.createBufferSource();
+            src.buffer = noise;
+            src.loop = true;
+            const filter = ctx.createBiquadFilter();
+            filter.type = type;
+            filter.frequency.value = freq;
+            filter.Q.value = q;
+            const gain = ctx.createGain();
+            gain.gain.value = level;
+            src.connect(filter).connect(gain).connect(master);
+            src.start(0, Math.random() * 4);
+        }
+        bed('lowpass', 900, 0.5, 0.9);    // the body of the rain
+        bed('bandpass', 4500, 0.6, 0.22); // fine hiss of small drops
+
+        return {
+            level(value, when) {
+                master.gain.setTargetAtTime(value, when, 0.35);
+            },
+            tap(when, pan, size) {
+                const src = ctx.createBufferSource();
+                src.buffer = noise;
+                const filter = ctx.createBiquadFilter();
+                filter.type = 'bandpass';
+                filter.frequency.value = 1800 + 3200 * Math.random();
+                filter.Q.value = 1.5 + 3 * Math.random();
+                const gain = ctx.createGain();
+                gain.gain.setValueAtTime(0, when);
+                gain.gain.linearRampToValueAtTime(0.05 + 0.25 * size, when + 0.002);
+                gain.gain.exponentialRampToValueAtTime(0.0001, when + 0.03 + 0.05 * size);
+                const panner = ctx.createStereoPanner();
+                panner.pan.value = pan;
+                src.connect(filter).connect(gain).connect(panner).connect(master);
+                src.start(when, Math.random() * 3.5, 0.12);
+            }
+        };
+    }
+
+    let audioCtx = null, sound = null, soundOn = false, soundLevelAt = 0;
+
+    function playSound() {
+        const now = audioCtx.currentTime;
+        if (now - soundLevelAt > 0.1) {
+            soundLevelAt = now;
+            const gust = 0.35 + 1.3 * noise(clock * 0.07, 7.5);
+            sound.level(soundOn ? 0.5 * Math.pow(rainAmount * gust, 0.6) : 0, now);
+        }
+        if (!soundOn) return;
+        // a handful of taps per frame at most, spread so they don't land together
+        for (let i = 0; i < Math.min(impacts.length, 8); i += 2) {
+            const size = Math.min(1, impacts[i + 1] / CFG.dropMax);
+            sound.tap(now + Math.random() * 0.016, impacts[i] / W * 1.6 - 0.8, size);
+        }
+    }
+
+    function setSound(on) {
+        soundOn = on;
+        if (on && !audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            sound = createRainSound(audioCtx);
+        }
+        if (on) {
+            audioCtx.resume();
+        } else {
+            // let the fade-out finish, then stop the audio thread
+            setTimeout(() => {
+                if (!soundOn) audioCtx.suspend();
+            }, 1500);
+        }
+    }
+
+    document.addEventListener('visibilitychange', () => {
+        if (!audioCtx) return;
+        if (document.hidden) audioCtx.suspend();
+        else if (soundOn) audioCtx.resume();
+    });
 
     let resizeTimer = 0;
     window.addEventListener('resize', () => {

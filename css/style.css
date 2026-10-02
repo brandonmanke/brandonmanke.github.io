@@ -239,7 +239,7 @@ a {
 }
 
 .rain-setting span {
-    width: 26px;
+    width: 44px;
 }
 
 .rain-setting input[type="range"] {
@@ -283,6 +283,35 @@ a {
 }
 
 .rain-setting input[type="range"]:focus-visible {
+    outline: 2px solid rgba(77, 172, 223, 0.7);
+    outline-offset: 3px;
+}
+
+.rain-setting[hidden] {
+    display: none;
+}
+
+.rain-switch {
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 999px;
+    padding: 2px 9px;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    font: inherit;
+    line-height: 1.2;
+    transition: border-color 180ms ease, color 180ms ease;
+}
+
+.rain-switch:hover,
+.rain-switch[aria-pressed="true"] {
+    border-color: rgba(255, 255, 255, 0.28);
+    color: rgba(255, 255, 255, 0.86);
+}
+
+.rain-switch:focus-visible {
     outline: 2px solid rgba(77, 172, 223, 0.7);
     outline-offset: 3px;
 }
