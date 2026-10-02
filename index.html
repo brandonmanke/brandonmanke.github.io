@@ -61,7 +61,25 @@
     <canvas class="city-glow" id="city-glow" aria-hidden="true"></canvas>
     <canvas class="city-lights" id="city-lights" aria-hidden="true"></canvas>
     <canvas class="rain" id="rain" aria-hidden="true"></canvas>
-    <button class="seed-link" id="lights-seed" type="button" aria-label="Copy shareable lights URL"></button>
+    <div class="corner-controls">
+        <div class="rain-settings" id="rain-settings" hidden>
+            <label class="rain-setting" title="drizzle to downpour">
+                <span>rain</span>
+                <input type="range" id="rain-amount" min="0" max="100" value="50" autocomplete="off">
+            </label>
+            <label class="rain-setting" title="calm to streaming">
+                <span>flow</span>
+                <input type="range" id="rain-flow" min="0" max="100" value="50" autocomplete="off">
+            </label>
+        </div>
+        <button class="seed-link rain-toggle" id="rain-toggle" type="button" aria-label="Rain settings"
+            aria-expanded="false" aria-controls="rain-settings" hidden>
+            <svg viewBox="0 0 10 12" width="8" height="10" aria-hidden="true">
+                <path d="M5 .8C3.6 2.7 1.2 5.4 1.2 7.6a3.8 3.8 0 0 0 7.6 0C8.8 5.4 6.4 2.7 5 .8z" fill="currentColor" />
+            </svg>
+        </button>
+        <button class="seed-link" id="lights-seed" type="button" aria-label="Copy shareable lights URL"></button>
+    </div>
     <div class="wrapper"></div>
     <div class="title">
         <div class="contact">

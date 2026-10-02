@@ -27,11 +27,11 @@
         dropMax: 8,
         dropletMin: 0.45,
         dropletMax: 1.9,
-        slideRadius: 5.2,      // around this size gravity beats surface pinning
+        slideRadius: 5.7,      // around this size gravity beats surface pinning
         gravity: 1100,
         drag: 3.4,
         sweep: 0.05,           // water picked up per px² a sliding drop sweeps
-        evaporate: 0.15,       // small drops shrink faster, so the glass never saturates
+        evaporate: 0.2,        // small drops shrink faster, so the glass never saturates
         maxDrops: 1200,
         fogCenter: 0.08,       // mist density in the middle of the glass
         fogEdge: 0.55,         // ...and towards the frame
@@ -351,6 +351,8 @@
     const CELL = 6;
     let wetGrid = new Float32Array(0), gridW = 0, gridH = 0;
     let raf = 0, last = 0, ready = false, failed = false;
+    // Set from the settings panel: how hard it rains, how readily drops run.
+    let rainAmount = 1, flow = 1;
     const noiseSeed = [Math.random() * 1000, Math.random() * 1000];
 
     function hash(x, y) {
@@ -445,9 +447,9 @@
         clock += dt;
         // rain comes in gusts rather than at a steady rate
         const gust = 0.35 + 1.3 * noise(clock * 0.07, 7.5);
-        dropAcc += CFG.dropRate * gust * area * dt;
+        dropAcc += CFG.dropRate * rainAmount * gust * area * dt;
         for (; dropAcc >= 1; dropAcc--) addDrop(Math.random() * W, Math.random() * H, randomDropRadius());
-        dropletAcc += CFG.dropletRate * gust * area * dt;
+        dropletAcc += CFG.dropletRate * rainAmount * gust * area * dt;
         for (; dropletAcc >= 1; dropletAcc--) addDroplet(Math.random() * W, Math.random() * H, randomDropletRadius(), 0.5);
 
         for (const d of drops) {
@@ -458,7 +460,7 @@
             // A recent trail ahead means less pinning and less drag.
             const ahead = d.y + d.ry + 2;
             const wet = wetness(d.x, ahead);
-            const pin = CFG.slideRadius * (0.7 + 0.6 * noise(d.x / 14, d.y / 14)) * (1 - 0.4 * wet);
+            const pin = CFG.slideRadius * flow * (0.7 + 0.6 * noise(d.x / 14, d.y / 14)) * (1 - 0.4 * wet);
             const drive = 1 - (pin * pin) / (d.r * d.r);
             if (drive > 0) d.vy += CFG.gravity * drive * dt;
             const drag = drive > 0 ? CFG.drag * (0.5 + 1.4 * noise(d.x / 9 + 20, d.y / 9)) * (1 - 0.45 * wet) : 16;
@@ -634,10 +636,10 @@
     // Start with glass that has been out in the rain for a while.
     function warmup() {
         const area = W * H / 1e6;
-        for (let i = CFG.dropletRate * area * 18; i > 0; i--) {
+        for (let i = CFG.dropletRate * rainAmount * area * 18; i > 0; i--) {
             addDroplet(Math.random() * W, Math.random() * H, randomDropletRadius(), 0.5 * Math.random());
         }
-        for (let i = CFG.dropRate * area * 10; i > 0; i--) addDrop(Math.random() * W, Math.random() * H, randomDropRadius());
+        for (let i = CFG.dropRate * rainAmount * area * 10; i > 0; i--) addDrop(Math.random() * W, Math.random() * H, randomDropRadius());
         flushWet(true);
         const dt = 1 / 30;
         for (let t = 0; t < CFG.warmup; t += dt) {
@@ -691,6 +693,7 @@
         render();
         canvas.style.opacity = '1';
         ready = true;
+        if (settingsToggle && !reducedMotion) settingsToggle.hidden = false;
         if (!reducedMotion) {
             cancelAnimationFrame(raf);
             last = performance.now();
@@ -705,6 +708,39 @@
         pendingDt += dt;
         render();
         raf = requestAnimationFrame(frame);
+    }
+
+    // ---------- settings panel ----------
+
+    const settingsToggle = document.getElementById('rain-toggle');
+    const settingsPanel = document.getElementById('rain-settings');
+    const amountInput = document.getElementById('rain-amount');
+    const flowInput = document.getElementById('rain-flow');
+
+    function readSettings() {
+        // 50 is the default for both: rain runs from dry to ~3x, flow from calm to streaming.
+        rainAmount = Math.pow(amountInput.value / 50, 1.6);
+        flow = Math.pow(1.3, (50 - flowInput.value) / 50);
+    }
+
+    function setPanelOpen(open) {
+        settingsPanel.hidden = !open;
+        settingsToggle.setAttribute('aria-expanded', String(open));
+    }
+
+    if (settingsToggle && settingsPanel && amountInput && flowInput) {
+        readSettings();
+        amountInput.addEventListener('input', readSettings);
+        flowInput.addEventListener('input', readSettings);
+        settingsToggle.addEventListener('click', () => setPanelOpen(settingsPanel.hidden));
+        document.addEventListener('pointerdown', (e) => {
+            if (!settingsPanel.hidden && !settingsPanel.contains(e.target) && !settingsToggle.contains(e.target)) setPanelOpen(false);
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key !== 'Escape' || settingsPanel.hidden) return;
+            setPanelOpen(false);
+            settingsToggle.focus();
+        });
     }
 
     let resizeTimer = 0;

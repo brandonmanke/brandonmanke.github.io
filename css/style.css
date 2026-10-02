@@ -148,11 +148,25 @@ a {
     transition: opacity 1200ms ease;
 }
 
-.seed-link {
+.corner-controls {
     position: fixed;
     z-index: 1000;
     right: 14px;
     bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Stack on phones so the row doesn't run into the centred contact icons */
+@media screen and (max-width: 480px) {
+    .corner-controls {
+        flex-direction: column;
+        align-items: flex-end;
+    }
+}
+
+.seed-link {
     border: 1px solid rgba(255, 255, 255, 0.14);
     border-radius: 999px;
     padding: 4px 8px;
@@ -177,6 +191,98 @@ a {
 }
 
 .seed-link:focus-visible {
+    outline: 2px solid rgba(77, 172, 223, 0.7);
+    outline-offset: 3px;
+}
+
+.rain-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+}
+
+.rain-toggle[aria-expanded="true"] {
+    border-color: rgba(255, 255, 255, 0.28);
+    color: rgba(255, 255, 255, 0.86);
+}
+
+.rain-toggle[hidden],
+.rain-settings[hidden] {
+    display: none;
+}
+
+.rain-settings {
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + 8px);
+    display: grid;
+    gap: 9px;
+    padding: 11px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 12px;
+    background: rgba(8, 14, 18, 0.5);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: rgba(255, 255, 255, 0.58);
+    font-size: 10px;
+    letter-spacing: 0.04em;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.55);
+}
+
+.rain-setting {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.rain-setting span {
+    width: 26px;
+}
+
+.rain-setting input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 112px;
+    height: 14px;
+    margin: 0;
+    background: transparent;
+    cursor: pointer;
+}
+
+.rain-setting input[type="range"]::-webkit-slider-runnable-track {
+    height: 2px;
+    border-radius: 1px;
+    background: rgba(255, 255, 255, 0.22);
+}
+
+.rain-setting input[type="range"]::-moz-range-track {
+    height: 2px;
+    border-radius: 1px;
+    background: rgba(255, 255, 255, 0.22);
+}
+
+.rain-setting input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 10px;
+    height: 10px;
+    margin-top: -4px;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.82);
+}
+
+.rain-setting input[type="range"]::-moz-range-thumb {
+    width: 10px;
+    height: 10px;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.82);
+}
+
+.rain-setting input[type="range"]:focus-visible {
     outline: 2px solid rgba(77, 172, 223, 0.7);
     outline-offset: 3px;
 }
