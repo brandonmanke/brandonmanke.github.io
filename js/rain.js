@@ -367,7 +367,7 @@
     // Parallax and wiping are opt-in from the panel. The city's shift is -1..1
     // of CFG.parallax, scaled by depth, which eases in and out with the toggle;
     // the photo zooms by the same amount so the shift never reveals its edges.
-    let parallaxOn = false, wipeOn = false, depth = 0;
+    let parallaxOn = false, wipeOn = true, depth = 0;
     const shift = { x: 0, y: 0, tx: 0, ty: 0 };
     let lastPointer = null;
     const impacts = []; // x, radius of drops that landed this frame, for the sound
@@ -775,15 +775,41 @@
         flow = Math.pow(1.3, (50 - flowInput.value) / 50);
     }
 
+    // Panel settings are remembered per browser, so a reload (phones drop
+    // pages in the background) doesn't put them back to the defaults.
+    const STORE_KEY = 'rain-settings';
+
+    function loadSettings() {
+        try {
+            return JSON.parse(localStorage.getItem(STORE_KEY)) || {};
+        } catch (e) {
+            return {};
+        }
+    }
+
+    function saveSettings() {
+        try {
+            localStorage.setItem(STORE_KEY, JSON.stringify({
+                rain: amountInput.value, flow: flowInput.value, parallax: parallaxOn, wipe: wipeOn
+            }));
+        } catch (e) { }
+    }
+
     // An on/off pill button; aria-pressed holds the state.
-    function bindSwitch(id, onChange) {
+    function bindSwitch(id, initial, onChange) {
         const button = document.getElementById(id);
         if (!button) return;
-        button.addEventListener('click', () => {
-            const on = button.getAttribute('aria-pressed') !== 'true';
+        const show = (on) => {
             button.setAttribute('aria-pressed', String(on));
             button.textContent = on ? 'on' : 'off';
+        };
+        show(initial);
+        onChange(initial);
+        button.addEventListener('click', () => {
+            const on = button.getAttribute('aria-pressed') !== 'true';
+            show(on);
             onChange(on);
+            saveSettings();
         });
     }
 
@@ -793,21 +819,26 @@
     }
 
     if (settingsToggle && settingsPanel && amountInput && flowInput) {
+        const saved = loadSettings();
+        if (saved.rain !== undefined) amountInput.value = saved.rain;
+        if (saved.flow !== undefined) flowInput.value = saved.flow;
         readSettings();
         amountInput.addEventListener('input', readSettings);
         flowInput.addEventListener('input', readSettings);
-        bindSwitch('rain-parallax', (on) => {
+        amountInput.addEventListener('change', saveSettings);
+        flowInput.addEventListener('change', saveSettings);
+        bindSwitch('rain-parallax', saved.parallax === true, (on) => {
             parallaxOn = on;
             shift.tx = 0;
             shift.ty = 0;
         });
-        bindSwitch('rain-wipe', (on) => {
+        bindSwitch('rain-wipe', saved.wipe !== false, (on) => {
             wipeOn = on;
         });
         const soundButton = document.getElementById('rain-sound');
         if (soundButton && CFG.sound && (window.AudioContext || window.webkitAudioContext)) {
             soundButton.closest('.rain-setting').hidden = false;
-            bindSwitch('rain-sound', setSound);
+            bindSwitch('rain-sound', false, setSound);
         }
         settingsToggle.addEventListener('click', () => setPanelOpen(settingsPanel.hidden));
         document.addEventListener('pointerdown', (e) => {
@@ -992,7 +1023,7 @@
         }
         if (on) {
             audioCtx.resume();
-        } else {
+        } else if (audioCtx) {
             // let the fade-out finish, then stop the audio thread
             setTimeout(() => {
                 if (!soundOn) audioCtx.suspend();

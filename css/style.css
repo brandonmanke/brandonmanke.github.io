@@ -367,6 +367,9 @@ a {
     min-height: var(--hero-height);
     left: 0;
     top: 0;
+    /* the page never scrolls, so let one-finger drags reach the rain (to wipe
+       the mist) instead of starting a pan; pinch-zoom still works */
+    touch-action: pinch-zoom;
 }
 
 .title {
