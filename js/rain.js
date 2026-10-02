@@ -3,7 +3,17 @@
 // refracts the city photo through that height field, so every drop shows a
 // tiny upside-down view of the scene like a real one does. Mist on the glass
 // is a blurred copy of the scene that sliding drops wipe clear.
-(function () {
+(function (startRain) {
+    // Start once the page has loaded and gone idle, so setting up WebGL never
+    // delays the first paint; the canvas fades in anyway.
+    function startWhenIdle() {
+        if (window.requestIdleCallback) window.requestIdleCallback(() => startRain(), { timeout: 1500 });
+        else setTimeout(startRain, 200);
+    }
+
+    if (document.readyState === 'complete') startWhenIdle();
+    else window.addEventListener('load', startWhenIdle);
+})(function () {
     'use strict';
 
     const canvas = document.getElementById('rain');
@@ -12,12 +22,19 @@
     if (!canvas || !backgroundEl) return;
 
     const gl = canvas.getContext('webgl2', {
+        failIfMajorPerformanceCaveat: true,
         premultipliedAlpha: true,
         antialias: false,
         depth: false,
         stencil: false
     });
     if (!gl || !(gl.getExtension('EXT_color_buffer_float') || gl.getExtension('EXT_color_buffer_half_float'))) return;
+
+    // Without a usable GPU (headless test runners, blocklisted drivers) WebGL
+    // falls back to rendering on the CPU; the rain would crawl along at a few
+    // frames a second and choke the page, so leave the plain photo instead.
+    const gpuInfo = gl.getExtension('WEBGL_debug_renderer_info');
+    if (gpuInfo && /swiftshader|llvmpipe|softpipe|software|basic render/i.test(gl.getParameter(gpuInfo.UNMASKED_RENDERER_WEBGL))) return;
 
     // Sizes are CSS px, times are seconds.
     const CFG = {
@@ -1049,4 +1066,4 @@
     }
     if (photo.complete && photo.naturalWidth) resize();
     else photo.addEventListener('load', resize);
-})();
+});
