@@ -24,7 +24,8 @@
         href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="./css/normalize.css">
-    <link rel="stylesheet" type="text/css" href="./css/style.css">
+    <!-- bump ?v= on style.css and rain.js when they change, so browsers never pair a new page with an old cached copy -->
+    <link rel="stylesheet" type="text/css" href="./css/style.css?v=2">
     <link rel="author" href="https://github.com/brandonmanke" />
     <link rel="shortcut icon" href="favicon/favicon.ico">
     <link rel="icon" sizes="16x16 32x32 64x64" href="favicon/favicon.ico">
@@ -653,7 +654,7 @@
             // console.log('[Glow] canvas z-index', getComputedStyle(glowCanvas).zIndex);
         });
     </script>
-    <script src="./js/rain.js"></script>
+    <script src="./js/rain.js?v=2"></script>
     <script>
         !function (n) { "use strict"; n.loadCSS || (n.loadCSS = function () { }); var o = loadCSS.relpreload = {};/* Shortened for brevity */ }("undefined" != typeof global ? global : this);
     </script>
