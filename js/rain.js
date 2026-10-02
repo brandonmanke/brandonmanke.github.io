@@ -242,6 +242,11 @@
                              texture(uScene, sceneUv + offset * 0.98).b);
             vec3 strike = texture(uLightning, sceneUv + offset).rgb * uFlash;
             refr = 1.0 - (1.0 - refr) * (1.0 - strike);
+            // Bright lights right behind a drop still shine through it (light
+            // scatters forward), so a lit screen isn't punched full of dark holes.
+            vec3 behindDrop = textureLod(uScene, sceneUv, 2.5).rgb;
+            float glare = smoothstep(0.3, 0.75, dot(behindDrop, vec3(0.2126, 0.7152, 0.0722)));
+            refr = max(refr, behindDrop * glare * 0.85);
             refr *= 1.15;
             // light hitting the steep rim is mostly reflected back into the dark room
             refr *= 1.0 - 0.85 * smoothstep(0.7, 1.6, steep);
