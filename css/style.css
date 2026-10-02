@@ -136,6 +136,18 @@ a {
     mix-blend-mode: screen;
 }
 
+.rain {
+    position: absolute;
+    z-index: 4;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: var(--hero-height);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 1200ms ease;
+}
+
 .seed-link {
     position: fixed;
     z-index: 1000;

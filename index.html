@@ -60,6 +60,7 @@
     <div class="background"></div>
     <canvas class="city-glow" id="city-glow" aria-hidden="true"></canvas>
     <canvas class="city-lights" id="city-lights" aria-hidden="true"></canvas>
+    <canvas class="rain" id="rain" aria-hidden="true"></canvas>
     <button class="seed-link" id="lights-seed" type="button" aria-label="Copy shareable lights URL"></button>
     <div class="wrapper"></div>
     <div class="title">
@@ -296,6 +297,7 @@
                 ctx.restore();
 
                 glowCanvas.style.opacity = '1';
+                glowCanvas.dispatchEvent(new Event('rendered'));
                 // console.log('[Glow] drawn', {canvasW: glowCanvas.width, canvasH: glowCanvas.height});
             }
 
@@ -586,6 +588,7 @@
             // console.log('[Glow] canvas z-index', getComputedStyle(glowCanvas).zIndex);
         });
     </script>
+    <script src="./js/rain.js"></script>
     <script>
         !function (n) { "use strict"; n.loadCSS || (n.loadCSS = function () { }); var o = loadCSS.relpreload = {};/* Shortened for brevity */ }("undefined" != typeof global ? global : this);
     </script>
