@@ -167,16 +167,6 @@ a {
     right: 14px;
     bottom: 12px;
     display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-/* Stack on phones so the row doesn't run into the centred contact icons */
-@media screen and (max-width: 480px) {
-    .corner-controls {
-        flex-direction: column;
-        align-items: flex-end;
-    }
 }
 
 .seed-link {
@@ -222,8 +212,8 @@ a {
     color: rgba(255, 255, 255, 0.86);
 }
 
-.rain-toggle[hidden],
-.rain-settings[hidden] {
+.rain-settings[hidden],
+.rain-controls[hidden] {
     display: none;
 }
 
@@ -244,6 +234,13 @@ a {
     font-size: 10px;
     letter-spacing: 0.04em;
     text-shadow: 0 1px 1px rgba(0, 0, 0, 0.55);
+}
+
+.rain-controls {
+    display: grid;
+    gap: 9px;
+    padding-bottom: 9px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .rain-setting {
@@ -762,15 +759,6 @@ a {
         inset: -12px;
     }
 
-    /* split the 6px gap between the two corner buttons */
-    .rain-toggle::after {
-        right: -4px;
-    }
-
-    #lights-seed::after {
-        left: -4px;
-    }
-
     /* panel rows are 9px apart, so switches only grow sideways much */
     .rain-switch::after {
         inset: -5px -13px;
@@ -794,19 +782,6 @@ a {
         height: 24px;
         border: 7px solid transparent;
         background-clip: padding-box;
-    }
-}
-
-/* Phones stack the two corner buttons, so split the gap vertically instead */
-@media (pointer: coarse) and (max-width: 480px) {
-    .rain-toggle::after {
-        right: -12px;
-        bottom: -4px;
-    }
-
-    #lights-seed::after {
-        left: -12px;
-        top: -4px;
     }
 }
 

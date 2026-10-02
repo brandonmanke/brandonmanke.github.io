@@ -778,7 +778,7 @@
         render();
         canvas.style.opacity = '1';
         ready = true;
-        if (settingsToggle && !reducedMotion) settingsToggle.hidden = false;
+        if (rainControls && !reducedMotion) rainControls.hidden = false;
         if (!reducedMotion) {
             cancelAnimationFrame(raf);
             last = performance.now();
@@ -809,8 +809,8 @@
 
     // ---------- settings panel ----------
 
-    const settingsToggle = document.getElementById('rain-toggle');
-    const settingsPanel = document.getElementById('rain-settings');
+    // (index.html opens and closes the panel; these rows only appear once the rain runs)
+    const rainControls = document.getElementById('rain-controls');
     const amountInput = document.getElementById('rain-amount');
     const flowInput = document.getElementById('rain-flow');
 
@@ -860,12 +860,7 @@
         });
     }
 
-    function setPanelOpen(open) {
-        settingsPanel.hidden = !open;
-        settingsToggle.setAttribute('aria-expanded', String(open));
-    }
-
-    if (settingsToggle && settingsPanel && amountInput && flowInput) {
+    if (rainControls && amountInput && flowInput) {
         const saved = loadSettings();
         if (saved.rain !== undefined) amountInput.value = saved.rain;
         // a phone is a small window to look through; lighter rain reads better on it
@@ -896,15 +891,6 @@
             soundButton.closest('.rain-setting').hidden = false;
             bindSwitch('rain-sound', false, setSound);
         }
-        settingsToggle.addEventListener('click', () => setPanelOpen(settingsPanel.hidden));
-        document.addEventListener('pointerdown', (e) => {
-            if (!settingsPanel.hidden && !settingsPanel.contains(e.target) && !settingsToggle.contains(e.target)) setPanelOpen(false);
-        });
-        document.addEventListener('keydown', (e) => {
-            if (e.key !== 'Escape' || settingsPanel.hidden) return;
-            setPanelOpen(false);
-            settingsToggle.focus();
-        });
     }
 
     // ---------- parallax & wiping ----------

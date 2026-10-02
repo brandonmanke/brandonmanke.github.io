@@ -49,7 +49,8 @@
     <noscript>
         <style>
             .city-glow,
-            .city-lights {
+            .city-lights,
+            .corner-controls {
                 display: none !important;
             }
         </style>
@@ -64,42 +65,47 @@
     <canvas class="rain" id="rain" aria-hidden="true"></canvas>
     <div class="corner-controls">
         <div class="rain-settings" id="rain-settings" hidden>
-            <label class="rain-setting" title="drizzle to downpour">
-                <span>rain</span>
-                <input type="range" id="rain-amount" min="0" max="100" value="55" autocomplete="off">
-            </label>
-            <label class="rain-setting" title="calm to streaming">
-                <span>flow</span>
-                <input type="range" id="rain-flow" min="0" max="100" value="15" autocomplete="off">
-            </label>
-            <label class="rain-setting">
-                <span>parallax</span>
-                <button class="rain-switch" id="rain-parallax" type="button" aria-label="Parallax"
-                    aria-pressed="false">off</button>
-            </label>
-            <label class="rain-setting">
-                <span>wipe</span>
-                <button class="rain-switch" id="rain-wipe" type="button" aria-label="Wipe the mist"
-                    aria-pressed="true">on</button>
-            </label>
-            <label class="rain-setting">
-                <span>lightning</span>
-                <button class="rain-switch" id="rain-lightning" type="button" aria-label="Lightning"
-                    aria-pressed="true">on</button>
-            </label>
-            <label class="rain-setting" hidden>
-                <span>sound</span>
-                <button class="rain-switch" id="rain-sound" type="button" aria-label="Rain sound"
-                    aria-pressed="false">off</button>
-            </label>
+            <div class="rain-controls" id="rain-controls" hidden>
+                <label class="rain-setting" title="drizzle to downpour">
+                    <span>rain</span>
+                    <input type="range" id="rain-amount" min="0" max="100" value="55" autocomplete="off">
+                </label>
+                <label class="rain-setting" title="calm to streaming">
+                    <span>flow</span>
+                    <input type="range" id="rain-flow" min="0" max="100" value="15" autocomplete="off">
+                </label>
+                <label class="rain-setting">
+                    <span>parallax</span>
+                    <button class="rain-switch" id="rain-parallax" type="button" aria-label="Parallax"
+                        aria-pressed="false">off</button>
+                </label>
+                <label class="rain-setting">
+                    <span>wipe</span>
+                    <button class="rain-switch" id="rain-wipe" type="button" aria-label="Wipe the mist"
+                        aria-pressed="true">on</button>
+                </label>
+                <label class="rain-setting">
+                    <span>lightning</span>
+                    <button class="rain-switch" id="rain-lightning" type="button" aria-label="Lightning"
+                        aria-pressed="true">on</button>
+                </label>
+                <label class="rain-setting" hidden>
+                    <span>sound</span>
+                    <button class="rain-switch" id="rain-sound" type="button" aria-label="Rain sound"
+                        aria-pressed="false">off</button>
+                </label>
+            </div>
+            <div class="rain-setting">
+                <span>lights</span>
+                <button class="rain-switch" id="lights-seed" type="button" aria-label="Copy shareable lights URL"></button>
+            </div>
         </div>
-        <button class="seed-link rain-toggle" id="rain-toggle" type="button" aria-label="Rain settings"
-            aria-expanded="false" aria-controls="rain-settings" hidden>
+        <button class="seed-link rain-toggle" id="rain-toggle" type="button" aria-label="Scene settings"
+            aria-expanded="false" aria-controls="rain-settings">
             <svg viewBox="0 0 10 12" width="8" height="10" aria-hidden="true">
                 <path d="M5 .8C3.6 2.7 1.2 5.4 1.2 7.6a3.8 3.8 0 0 0 7.6 0C8.8 5.4 6.4 2.7 5 .8z" fill="currentColor" />
             </svg>
         </button>
-        <button class="seed-link" id="lights-seed" type="button" aria-label="Copy shareable lights URL"></button>
     </div>
     <div class="wrapper"></div>
     <div class="title">
@@ -211,7 +217,7 @@
 
             function updateSeedButton(copied) {
                 if (!seedButton) return;
-                seedButton.textContent = copied ? 'copied lights url' : 'lights: ' + lightsSeed;
+                seedButton.textContent = copied ? 'copied link' : lightsSeed;
                 seedButton.title = 'Copy shareable lights URL';
             }
 
@@ -230,6 +236,26 @@
             updateSeedButton(false);
             if (seedButton) {
                 seedButton.addEventListener('click', copySeedUrl);
+            }
+
+            // The corner button opens the settings panel. The lights row is
+            // always there; rain.js reveals the rain rows once the rain runs.
+            const settingsToggle = document.getElementById('rain-toggle');
+            const settingsPanel = document.getElementById('rain-settings');
+            if (settingsToggle && settingsPanel) {
+                const setPanelOpen = (open) => {
+                    settingsPanel.hidden = !open;
+                    settingsToggle.setAttribute('aria-expanded', String(open));
+                };
+                settingsToggle.addEventListener('click', () => setPanelOpen(settingsPanel.hidden));
+                document.addEventListener('pointerdown', (e) => {
+                    if (!settingsPanel.hidden && !settingsPanel.contains(e.target) && !settingsToggle.contains(e.target)) setPanelOpen(false);
+                });
+                document.addEventListener('keydown', (e) => {
+                    if (e.key !== 'Escape' || settingsPanel.hidden) return;
+                    setPanelOpen(false);
+                    settingsToggle.focus();
+                });
             }
 
             window.addEventListener('hashchange', () => {
