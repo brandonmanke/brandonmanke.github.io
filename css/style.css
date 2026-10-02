@@ -169,6 +169,13 @@ a {
     display: flex;
 }
 
+/* quick taps on the controls are taps, never double-tap zoom
+   (touch-action isn't inherited, so it goes on every element) */
+.corner-controls,
+.corner-controls * {
+    touch-action: manipulation;
+}
+
 .seed-link {
     border: 1px solid rgba(255, 255, 255, 0.14);
     border-radius: 999px;
