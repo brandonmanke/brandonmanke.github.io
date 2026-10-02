@@ -57,6 +57,7 @@
         refraction: 0.9,       // how wide a view each drop sees, × screen height
         blur: 9,               // how strongly the mist blurs the city
         warmup: 14,            // simulated seconds before the first frame
+        rainRamp: 40,          // seconds for the rain to build from its random start to the slider's level
         parallax: 0.012,       // how far the city shifts behind the glass, × screen size
         wipeRadius: 18,        // cursor / finger wiping the mist
         sound: false,          // synthesised placeholder; hidden until there's a real recording
@@ -393,6 +394,10 @@
     let raf = 0, last = 0, ready = false, failed = false;
     // Set from the settings panel: how hard it rains, how readily drops run.
     let rainAmount = 1, flow = 1;
+    // Each visit starts somewhere between dry and the slider's level and builds
+    // up to it, so the page doesn't always open on the same rain.
+    const rampFrom = Math.random();
+    let rampT = 0;
     // Parallax and wiping are opt-in from the panel. The city's shift is -1..1
     // of CFG.parallax, scaled by depth, which eases in and out with the toggle;
     // the photo zooms by the same amount so the shift never reveals its edges.
@@ -789,6 +794,10 @@
         shift.x += (shift.tx - shift.x) * ease;
         shift.y += (shift.ty - shift.y) * ease;
         depth += ((parallaxOn ? 1 : 0) - depth) * ease;
+        if (rampT < 1) {
+            rampT = Math.min(1, rampT + dt / CFG.rainRamp);
+            if (amountInput && flowInput) readSettings();
+        }
         applyParallax();
         updateLightning(dt);
         if (sound) playSound();
@@ -807,7 +816,8 @@
     function readSettings() {
         // 50 means the CFG rates: rain runs from dry to ~3x, flow from calm to streaming.
         // The page starts from the slider values in the HTML.
-        rainAmount = Math.pow(amountInput.value / 50, 1.6);
+        const t = rampT * rampT * (3 - 2 * rampT);
+        rainAmount = Math.pow(amountInput.value * (rampFrom + (1 - rampFrom) * t) / 50, 1.6);
         flow = Math.pow(1.3, (50 - flowInput.value) / 50);
     }
 
@@ -859,7 +869,11 @@
         if (saved.rain !== undefined) amountInput.value = saved.rain;
         if (saved.flow !== undefined) flowInput.value = saved.flow;
         readSettings();
-        amountInput.addEventListener('input', readSettings);
+        amountInput.addEventListener('input', () => {
+            // touching the slider means the rain should be where it says, now
+            rampT = 1;
+            readSettings();
+        });
         flowInput.addEventListener('input', readSettings);
         amountInput.addEventListener('change', saveSettings);
         flowInput.addEventListener('change', saveSettings);
